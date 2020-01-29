@@ -37,14 +37,14 @@ def stft(data, window=sinebell(2048),
     lengthData = data.size
     
     # should be the number of frames by YAAFE:
-    numberFrames = np.ceil(lengthData / np.double(hopsize)) + 2
+    numberFrames = int(np.ceil(lengthData / np.double(hopsize)) + 2)
     # to ensure that the data array s big enough,
     # assuming the first frame is centered on first sample:
-    newLengthData = (numberFrames-1) * hopsize + lengthWindow
-    
+    newLengthData = int((numberFrames-1) * hopsize + lengthWindow)
+
     # !!! adding zeros to the beginning of data, such that the first window is
     # centered on the first sample of data
-    data = np.concatenate((np.zeros(lengthWindow/2.0), data))
+    data = np.concatenate((np.zeros(int(lengthWindow/2.0)), data))
     
     # zero-padding data such that it holds an exact number of frames
     data = np.concatenate((data, np.zeros(newLengthData - data.size)))
@@ -53,7 +53,7 @@ def stft(data, window=sinebell(2048),
     # number (and a power of 2 for the fft to be fast)
     numberFrequencies = nfft / 2 + 1
     
-    STFT = np.zeros([numberFrequencies, numberFrames], dtype=complex)
+    STFT = np.zeros([int(numberFrequencies), numberFrames], dtype=complex)
     
     # storing FT of each frame in STFT:
     for n in np.arange(numberFrames):
@@ -120,8 +120,8 @@ def istft(X, window=sinebell(2048),
         data[beginFrame:endFrame] = (
             data[beginFrame:endFrame] + window * frameTMP)
     
-    data = data[(lengthWindow/2.0):]
-    normalisationSeq = normalisationSeq[(lengthWindow/2.0):]
+    data = data[int(lengthWindow/2.0):]
+    normalisationSeq = normalisationSeq[int(lengthWindow/2.0):]
     normalisationSeq[normalisationSeq==0] = 1.
     # ...added in the stft computation
     
@@ -140,7 +140,7 @@ def filter_stft(data, W, analysisWindow=None,
     """
     ns, nc = data.shape
     if nc != W.shape[0]:
-        print "data.shape", data.shape, "W.shape", W.shape
+        print("data.shape", data.shape, "W.shape", W.shape)
         raise AttributeError("W does not have the right number of channels")
         
     # window defines the size of the analysis windows
@@ -254,7 +254,7 @@ def filter_conv_stft(data, W, analysisWindow=None,
     nchanout = W.shape[0]
     
     if verbose:
-        print "data.shape", data.shape, "W.shape", W.shape
+        print("data.shape", data.shape, "W.shape", W.shape)
     
     # window defines the size of the analysis windows
     if analysisWindow is None or len(analysisWindow) != len(synthWindow):
@@ -272,6 +272,7 @@ def filter_conv_stft(data, W, analysisWindow=None,
     
     # !!! adding zeros to the beginning of data, such that the first window is
     # centered on the first sample of data
+
     data = np.concatenate((np.zeros(lengthWindow/2.0), data))
     
     # zero-padding data such that it holds an exact number of frames
@@ -303,7 +304,7 @@ def filter_conv_stft(data, W, analysisWindow=None,
             filteredFt = W * ft
         elif W.ndim==3:
             filteredFt = W[:,:,n] * ft
-            if verbose>1: print "W[:,:,n]", W[:,:,n]
+            if verbose>1: print("W[:,:,n]", W[:,:,n])
         else:
             raise ValueError(
                 "The provided filter does not have the right shape.")

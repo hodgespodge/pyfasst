@@ -34,7 +34,7 @@ def NMF_decomposition(SX, nbComps=10, niter=10, verbose=0):
     
     for i in range(niter):
         if verbose:
-            print "    NMF iteration %d out of %d" %(i+1, niter)
+            print("    NMF iteration %d out of %d" %(i+1, niter))
         # updating W
         hatSX = np.dot(W, H)
         num = np.dot(SX / np.maximum(hatSX**2, eps),
@@ -106,33 +106,33 @@ def NMF_decomp_init(SX, nbComps=10, niter=10, verbose=0,
     if Winit is None or (Winit.shape != (freqs, nbComps)):
         W = np.random.randn(freqs, nbComps)**2
         if verbose and not updateW:
-            print "    NMF decomp init: not updating randomly initialized W..."
+            print("    NMF decomp init: not updating randomly initialized W...")
     else:
         W = np.copy(Winit)
         if verbose and updateW:
-            print "    NMF decomp init: updating provided initial W..." 
+            print("    NMF decomp init: updating provided initial W...") 
 
     if Hinit is not None:
         if Hinit.shape == (nbComps, nframes):
             H = np.copy(Hinit.T)
             if verbose and updateH:
-                print "    NMF decomp init: updating provided initial H..."
+                print("    NMF decomp init: updating provided initial H...")
         elif  Hinit.shape == (nframes, nbComps):
             H = np.copy(Hinit)
             if verbose and updateH:
-                print "    NMF decomp init: updating provided initial H..."
+                print("    NMF decomp init: updating provided initial H...")
         else: raise AttributeError('Hinit not in the right shape.')
     else:
         H = np.random.randn(nframes, nbComps, )**2
         if verbose and not updateH:
-            print "    NMF decomp init: not updating randomly initialized H..."
+            print("    NMF decomp init: not updating randomly initialized H...")
     
     if updateW:
         W /= W.sum(axis=0)
     
     for i in range(niter):
         if verbose:
-            print "    NMF iteration %d out of %d" %(i+1, niter)
+            print("    NMF iteration %d out of %d" %(i+1, niter))
         if updateW:# updating W
             hatSX = np.dot(W, H.T)
             num = np.dot(SX / np.maximum(hatSX**2, eps),
@@ -174,19 +174,19 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
     if Winit is None or (Winit.shape != (freqs, nbComps)):
         W = np.random.randn(freqs, nbComps)**2
         if verbose and not updateW:
-            print "    NMF decomp init: not updating randomly initialized W..."
+            print("    NMF decomp init: not updating randomly initialized W...")
     else:
         W = np.copy(Winit)
         if verbose and updateW:
-            print "    NMF decomp init: updating provided initial W..." 
+            print("    NMF decomp init: updating provided initial W...") 
     if Hinit is None or (Hinit.shape != (nframes, nbComps)):
         H = np.random.randn(nframes, nbComps, )**2
         if verbose and not updateH:
-            print "    NMF decomp init: not updating randomly initialized H..."
+            print("    NMF decomp init: not updating randomly initialized H...")
     else:
         H = np.copy(Hinit)
         if verbose and updateH:
-            print "    NMF decomp init: updating provided initial H..."
+            print("    NMF decomp init: updating provided initial H...")
     
     if updateW:
         W /= W.sum(axis=0)
@@ -194,21 +194,21 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
     if WFiltInit is None or (WFiltInit.shape != (freqs, nbFiltComps)):
         WFilt = np.random.randn(freqs, nbFiltComps)**2
         if verbose and not updateWFilt:
-            print "    NMF decomp init: not "+\
-                  "updating randomly initialized WFilt..."
+            print("    NMF decomp init: not "+\
+                  "updating randomly initialized WFilt...")
     else:
         WFilt = np.copy(WFiltInit)
         if verbose and updateWFilt:
-            print "    NMF decomp init: updating provided initial WFilt..." 
+            print("    NMF decomp init: updating provided initial WFilt...") 
     if HFiltInit is None or (HFiltInit.shape != (nframes, nbFiltComps)):
         HFilt = np.random.randn(nframes, nbFiltComps, )**2
         if verbose and not updateHFilt:
-            print "    NMF decomp init: not updating "+\
-                  "randomly initialized HFilt..."
+            print("    NMF decomp init: not updating "+\
+                  "randomly initialized HFilt...")
     else:
         HFilt = np.copy(HFiltInit)
         if verbose and updateHFilt:
-            print "    NMF decomp init: updating provided initial H..."
+            print("    NMF decomp init: updating provided initial H...")
     
     if updateWFilt:
         WFilt /= WFilt.sum(axis=0)
@@ -228,10 +228,10 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
     
     for i in range(niter):
         if verbose:
-            print "    NMF iteration %d out of %d" %(i+1, niter)
+            print("    NMF iteration %d out of %d" %(i+1, niter))
         if updateW:# updating W
             if verbose:
-                print "        updating w f0"
+                print("        updating w f0")
             SF0 = np.dot(W, H.T)
             SPHI = np.dot(WFilt, HFilt.T)
             Sres = np.dot(Wres, Hres.T)
@@ -250,7 +250,7 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
         
         if updateH:# updating H
             if verbose:
-                print "        updating h f0"
+                print("        updating h f0")
             SF0 = np.dot(H, W.T)
             SPHI = np.dot(HFilt, WFilt.T)
             Sres = np.dot(Hres, Wres.T)
@@ -269,7 +269,7 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
             
         if updateWFilt:# updating WFilt
             if verbose:
-                print "        updating w filter"
+                print("        updating w filter")
             SF0 = np.dot(W, H.T)
             SPHI = np.dot(WFilt, HFilt.T)
             Sres = np.dot(Wres, Hres.T)
@@ -293,7 +293,7 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
         
         if updateHFilt:# updating HFilt
             if verbose:
-                print "        updating h filter"
+                print("        updating h filter")
             SF0 = np.dot(H, W.T)
             SPHI = np.dot(HFilt, WFilt.T)
             Sres = np.dot(Hres, Wres.T)
@@ -325,7 +325,7 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
             ##    plt.draw()
         # update residual comps:
         if verbose:
-            print "        updating w residual"
+            print("        updating w residual")
         SF0 = np.dot(W, H.T)
         SPHI = np.dot(WFilt, HFilt.T)
         Sres = np.dot(Wres, Hres.T)
@@ -344,7 +344,7 @@ def SFNMF_decomp_init(SX, nbComps=10, nbFiltComps=10,
         Hres *= sumW
         
         if verbose:
-            print "        updating h residual"
+            print("        updating h residual")
         SF0 = np.dot(H, W.T)
         SPHI = np.dot(HFilt, WFilt.T)
         Sres = np.dot(Hres, Wres.T)

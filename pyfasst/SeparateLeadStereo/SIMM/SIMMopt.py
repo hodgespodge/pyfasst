@@ -161,7 +161,7 @@ def SIMM(# the data to be fitted to:
     if displayEvolution:
         import matplotlib.pyplot as plt
         plt.ion()
-        print "Is the display interactive? ", plt.isinteractive()
+        print("Is the display interactive? ", plt.isinteractive())
     
     if not(progressBar is None):
         # progressBar is a QtGui.QProgressBar
@@ -191,8 +191,8 @@ def SIMM(# the data to be fitted to:
             HGAMMA0 = np.ascontiguousarray(HGAMMA0)
         Khgamma0, Phgamma0 = HGAMMA0.shape
         if Phgamma0 != P or Khgamma0 != K:
-            print "Wrong dimensions for given HGAMMA0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HGAMMA0, \n")
+            print("random initialization used instead")
             HGAMMA0 = np.abs(randn(K, P))
             
     HGAMMA = HGAMMA0 # warning: this version does modify the original arrays!
@@ -202,8 +202,8 @@ def SIMM(# the data to be fitted to:
     else:
         Nhphi0, Khphi0  = np.array(HPHI0).shape
         if Khphi0 != K or Nhphi0 != N:
-            print "Wrong dimensions for given HPHI0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HPHI0, \n")
+            print("random initialization used instead")
             HPHI = np.abs(randn(N, K))
         else:
             HPHI = np.ascontiguousarray(HPHI0)
@@ -214,8 +214,8 @@ def SIMM(# the data to be fitted to:
         if np.array(HF00).shape[1] == NF0 and np.array(HF00).shape[0] == N:
             HF00 = np.ascontiguousarray(HF00)
         else:
-            print "Wrong dimensions for given HF00, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HF00, \n")
+            print("random initialization used instead")
             HF00 = np.abs(randn(N, NF0))
     HF0 = HF00
     
@@ -226,8 +226,8 @@ def SIMM(# the data to be fitted to:
         if np.array(HM0).shape[1] == R and np.array(HM0).shape[0] == N:
             HM0 = np.ascontiguousarray(HM0)
         else:
-            print "Wrong dimensions for given HM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HM0, \n")
+            print("random initialization used instead")
             HM0 = np.abs(randn(N, R))
     HM = HM0
     
@@ -237,8 +237,8 @@ def SIMM(# the data to be fitted to:
         if np.array(WM0).shape[1] == F and np.array(WM0).shape[0] == R:
             WM0 = np.ascontiguousarray(WM0)
         else:
-            print "Wrong dimensions for given WM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given WM0, \n")
+            print("random initialization used instead")
             WM0 = np.abs(randn(R, F))
     WM = WM0
     
@@ -254,7 +254,7 @@ def SIMM(# the data to be fitted to:
         imgYticklabels = imgYticks
     else:
         imgYticklabels = np.int32(F0Table[imgYticks]).tolist()
-        for k, v in notesFreqs.items():
+        for k, v in list(notesFreqs.items()):
             closestIndex = np.argmin(np.abs(F0Table-v))
             if np.abs(12*np.log2(F0Table[closestIndex])-12*np.log2(v)) < .25:
                 imgYticks.append(closestIndex)
@@ -282,7 +282,7 @@ def SIMM(# the data to be fitted to:
     if computeError:
         recoError[0] = ISDistortion(SX, hatSX)
     if verbose:
-        print "Reconstruction error at beginning: ", recoError[0]
+        print("Reconstruction error at beginning: ", recoError[0])
     counterError = 1
     
     if makeMovie:
@@ -296,7 +296,7 @@ def SIMM(# the data to be fitted to:
             progressBar.setValue(n+1)
         
         if verbose:
-            print "iteration ", n, " over ", numberOfIterations
+            print("iteration ", n, " over ", numberOfIterations)
         
         if displayEvolution and not(imageCanvas is None):
             imageCanvas.ax.clear()
@@ -365,8 +365,8 @@ def SIMM(# the data to be fitted to:
             recoError[counterError] = ISDistortion(SX, hatSX)
         
             if verbose:
-                print "Reconstruction error difference after HF0   : ",
-                print recoError[counterError] - recoError[counterError - 1]
+                print("Reconstruction error difference after HF0   : ", end=' ')
+                print(recoError[counterError] - recoError[counterError - 1])
         counterError += 1
         
         # updating HPHI
@@ -388,8 +388,8 @@ def SIMM(# the data to be fitted to:
             recoError[counterError] = ISDistortion(SX, hatSX)
         
             if verbose:
-                print "Reconstruction error difference after HPHI  : ",
-                print recoError[counterError] - recoError[counterError - 1]
+                print("Reconstruction error difference after HPHI  : ", end=' ')
+                print(recoError[counterError] - recoError[counterError - 1])
         counterError += 1
         
         # updating HM
@@ -407,8 +407,8 @@ def SIMM(# the data to be fitted to:
             recoError[counterError] = ISDistortion(SX, hatSX)
         
             if verbose:
-                print "Reconstruction error difference after HM    : ", 
-                print recoError[counterError] - recoError[counterError - 1]
+                print("Reconstruction error difference after HM    : ", end=' ') 
+                print(recoError[counterError] - recoError[counterError - 1])
         counterError += 1
         
         # updating HGAMMA
@@ -436,8 +436,8 @@ def SIMM(# the data to be fitted to:
             recoError[counterError] = ISDistortion(SX, hatSX)
             
             if verbose:
-                print "Reconstruction error difference after HGAMMA: ",
-                print recoError[counterError] - recoError[counterError - 1]
+                print("Reconstruction error difference after HGAMMA: ", end=' ')
+                print(recoError[counterError] - recoError[counterError - 1])
             
         counterError += 1
         
@@ -462,8 +462,8 @@ def SIMM(# the data to be fitted to:
                 recoError[counterError] = ISDistortion(SX, hatSX)
             
                 if verbose:
-                    print "Reconstruction error difference after WM    : ",
-                    print recoError[counterError] - recoError[counterError - 1]
+                    print("Reconstruction error difference after WM    : ", end=' ')
+                    print(recoError[counterError] - recoError[counterError - 1])
             counterError += 1
             
     return HGAMMA, HPHI, HF0, HM, WM, recoError
@@ -573,7 +573,7 @@ def Stereo_SIMM(# the data to be fitted to:
         import matplotlib.pyplot as plt
         from imageMatlab import imageM
         plt.ion()
-        print "Is the display interactive? ", plt.isinteractive()
+        print("Is the display interactive? ", plt.isinteractive())
 
     # renamed for convenience:
     K = numberOfFilters
@@ -582,8 +582,8 @@ def Stereo_SIMM(# the data to be fitted to:
     
     F, N = SXR.shape
     if (F, N) != SXL.shape:
-        print "The input STFT matrices do not have the same dimension.\n"
-        print "Please check what happened..."
+        print("The input STFT matrices do not have the same dimension.\n")
+        print("Please check what happened...")
         raise ValueError("Dimension of STFT matrices must be the same.")
         
     Fwf0, NF0 = WF0.shape
@@ -599,8 +599,8 @@ def Stereo_SIMM(# the data to be fitted to:
             HGAMMA0 = np.array(HGAMMA0)
         Phgamma0, Khgamma0 = HGAMMA0.shape
         if Phgamma0 != P or Khgamma0 != K:
-            print "Wrong dimensions for given HGAMMA0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HGAMMA0, \n")
+            print("random initialization used instead")
             HGAMMA0 = np.abs(randn(P, K))
 
     HGAMMA = np.copy(HGAMMA0)
@@ -610,8 +610,8 @@ def Stereo_SIMM(# the data to be fitted to:
     else:
         Khphi0, Nhphi0 = np.array(HPHI0).shape
         if Khphi0 != K or Nhphi0 != N:
-            print "Wrong dimensions for given HPHI0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HPHI0, \n")
+            print("random initialization used instead")
             HPHI = np.abs(randn(K, N))
         else:
             HPHI = np.copy(np.array(HPHI0))
@@ -622,8 +622,8 @@ def Stereo_SIMM(# the data to be fitted to:
         if np.array(HF00).shape[0] == NF0 and np.array(HF00).shape[1] == N:
             HF00 = np.array(HF00)
         else:
-            print "Wrong dimensions for given HF00, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HF00, \n")
+            print("random initialization used instead")
             HF00 = np.abs(randn(NF0, N))
     HF0 = np.copy(HF00)
 
@@ -633,8 +633,8 @@ def Stereo_SIMM(# the data to be fitted to:
         if np.array(HM0).shape[0] == R and np.array(HM0).shape[1] == N:
             HM0 = np.array(HM0)
         else:
-            print "Wrong dimensions for given HM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HM0, \n")
+            print("random initialization used instead")
             HM0 = np.abs(randn(R, N))
     HM = np.copy(HM0)
 
@@ -644,8 +644,8 @@ def Stereo_SIMM(# the data to be fitted to:
         if np.array(WM0).shape[0] == F and np.array(WM0).shape[1] == R:
             WM0 = np.array(WM0)
         else:
-            print "Wrong dimensions for given WM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given WM0, \n")
+            print("random initialization used instead")
             WM0 = np.abs(randn(F, R))
     WM = np.copy(WM0)
 
@@ -675,7 +675,7 @@ def Stereo_SIMM(# the data to be fitted to:
     recoError = np.zeros([numberOfIterations * 5 * 2 + NF0 * 2 + 1])
     recoError[0] = ISDistortion(SXR, hatSXR) + ISDistortion(SXL, hatSXL)
     if verbose:
-        print "Reconstruction error at beginning: ", recoError[0]
+        print("Reconstruction error at beginning: ", recoError[0])
     counterError = 1
     if displayEvolution:
         h1 = plt.figure(1)
@@ -684,7 +684,7 @@ def Stereo_SIMM(# the data to be fitted to:
     for n in np.arange(numberOfIterations):
         # order of re-estimation: HF0, HPHI, HM, HGAMMA, WM
         if verbose:
-            print "iteration ", n, " over ", numberOfIterations
+            print("iteration ", n, " over ", numberOfIterations)
         if displayEvolution:
             h1.clf();imageM(db(HF0));
             plt.clim([np.amax(db(HF0))-100, np.amax(db(HF0))]);plt.draw();
@@ -939,15 +939,15 @@ def stereo_NMF(SXR, SXL,
         import matplotlib.pyplot as plt
         from imageMatlab import imageM
         plt.ion()
-        print "Is the display interactive? ", plt.isinteractive()
+        print("Is the display interactive? ", plt.isinteractive())
     
     R = numberOfAccompanimentSpectralShapes
     omega = updateRulePower
     
     F, N = SXR.shape
     if (F, N) != SXL.shape:
-        print "The input STFT matrices do not have the same dimension.\n"
-        print "Please check what happened..."
+        print("The input STFT matrices do not have the same dimension.\n")
+        print("Please check what happened...")
         raise ValueError("Dimension of STFT matrices must be the same.")
     
     if HM0 is None:
@@ -956,8 +956,8 @@ def stereo_NMF(SXR, SXL,
         if np.array(HM0).shape[0] == R and np.array(HM0).shape[1] == N:
             HM0 = np.array(HM0)
         else:
-            print "Wrong dimensions for given HM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given HM0, \n")
+            print("random initialization used instead")
             HM0 = np.abs(randn(R, N))
     HM = np.copy(HM0)
     
@@ -967,8 +967,8 @@ def stereo_NMF(SXR, SXL,
         if np.array(WM0).shape[0] == F and np.array(WM0).shape[1] == R:
             WM0 = np.array(WM0)
         else:
-            print "Wrong dimensions for given WM0, \n"
-            print "random initialization used instead"
+            print("Wrong dimensions for given WM0, \n")
+            print("random initialization used instead")
             WM0 = np.abs(randn(F, R))
     WM = np.copy(WM0)
     
@@ -985,7 +985,7 @@ def stereo_NMF(SXR, SXL,
     recoError = np.zeros([numberOfIterations * 3 + 1])
     recoError[0] = ISDistortion(SXR, hatSXR) + ISDistortion(SXL, hatSXL)
     if verbose:
-        print "Reconstruction error at beginning: ", recoError[0]
+        print("Reconstruction error at beginning: ", recoError[0])
     counterError = 1
     if displayEvolution:
         h1 = plt.figure(1)
@@ -994,7 +994,7 @@ def stereo_NMF(SXR, SXL,
     for n in np.arange(numberOfIterations):
         # order of re-estimation: HF0, HPHI, HM, HGAMMA, WM
         if verbose:
-            print "iteration ", n, " over ", numberOfIterations
+            print("iteration ", n, " over ", numberOfIterations)
             
         if displayEvolution:
             h1.clf()
@@ -1022,8 +1022,8 @@ def stereo_NMF(SXR, SXL,
                                   + ISDistortion(SXL, hatSXL)
         
         if verbose:
-            print "Reconstruction error difference after HM    : ",\
-                  recoError[counterError] - recoError[counterError - 1]
+            print("Reconstruction error difference after HM    : ",\
+                  recoError[counterError] - recoError[counterError - 1])
         counterError += 1
         
         # updating WM
@@ -1051,8 +1051,8 @@ def stereo_NMF(SXR, SXL,
                                   + ISDistortion(SXL, hatSXL)
         
         if verbose:
-            print "Reconstruction error difference after WM    : ",
-            print recoError[counterError] - recoError[counterError - 1]
+            print("Reconstruction error difference after WM    : ", end=' ')
+            print(recoError[counterError] - recoError[counterError - 1])
             
         counterError += 1
         
@@ -1081,8 +1081,8 @@ def stereo_NMF(SXR, SXL,
                                   + ISDistortion(SXL, hatSXL)
         
         if verbose:
-            print "Reconstruction error difference after BETA  : ",
-            print recoError[counterError] - recoError[counterError - 1]
+            print("Reconstruction error difference after BETA  : ", end=' ')
+            print(recoError[counterError] - recoError[counterError - 1])
         
         counterError += 1
         

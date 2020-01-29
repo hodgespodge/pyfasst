@@ -25,12 +25,12 @@ All standard disclaimers apply.
 """
 
 import numpy as N
-from nsgfwin_sl import nsgfwin
-from nsdual import nsdual
-from nsgtf import nsgtf
-from nsigtf import nsigtf
-from util import calcwinrange
-from fscale import OctScale
+from .nsgfwin_sl import nsgfwin
+from .nsdual import nsdual
+from .nsgtf import nsgtf
+from .nsigtf import nsigtf
+from .util import calcwinrange
+from .fscale import OctScale
 
 class NSGT:
     def __init__(self,scale,fs,Ls,real=True,measurefft=False,matrixform=False,reducedform=0,multichannel=False):
@@ -76,13 +76,13 @@ class NSGT:
     def forward(self,s):
         'transform'
         s = self.channelize(s)
-        c = map(self.fwd,s)
+        c = list(map(self.fwd,s))
         return self.unchannelize(c)
 
     def backward(self,c):
         'inverse transform'
         c = self.channelize(c)
-        s = map(self.bwd,c)
+        s = list(map(self.bwd,c))
         return self.unchannelize(s)
     
 class CQ_NSGT(NSGT):
@@ -108,12 +108,12 @@ class TestNSGT(unittest.TestCase):
         pass
 
     def test_oct(self):
-        for _ in xrange(100):
+        for _ in range(100):
             sig = N.random.random(100000)
             fmin = N.random.random()*200+1
             fmax = N.random.random()*(22048-fmin)+fmin
             obins = N.random.randint(24)+1
-            print fmin,fmax,obins
+            print(fmin,fmax,obins)
             scale = OctScale(fmin,fmax,obins)
             nsgt = NSGT(scale,fs=44100,Ls=len(sig))
             c = nsgt.forward(sig)

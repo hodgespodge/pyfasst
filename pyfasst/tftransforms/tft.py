@@ -3,10 +3,10 @@
 TODO: turn this into something more self-contained (like defining a super class
 for all the possible time-freq transforms)
 """
-from minqt import MinQTransfo, CQTransfo, sqrt_blackmanharris
+from .minqt import MinQTransfo, CQTransfo, sqrt_blackmanharris
 
-from stft import STFT # TODO: should be the opposite, should import stft from here into audioObject
-from nsgt import NSGMinQT
+from .stft import STFT # TODO: should be the opposite, should import stft from here into audioObject
+from .nsgt import NSGMinQT
 
 # Possible super class transform: 
 class TFTransform(object):

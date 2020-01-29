@@ -24,7 +24,7 @@ import scipy.signal as spsig  # for the windows and filters
 # import scipy.sparse as spspa
 import scipy.interpolate as spinterp
 # from .. import audioObject as ao # for the stft and istft
-from stft import stft, istft
+from .stft import stft, istft
 
 from ..tools.utils import nextpow2, sqrt_blackmanharris
 
@@ -228,7 +228,7 @@ class CQTKernel(object):
         
     def __str__(self):
         description = "CQT Kernel structure, containing:\n"
-        for k, v in self.__dict__.items():
+        for k, v in list(self.__dict__.items()):
             description += str(k) + ': ' + str(v) + '\n'
         return description
 
@@ -470,7 +470,7 @@ class CQTransfo(object):
     
     def computeCQT(self, data):
         # %% calculate CQT
-        if self.verbose: print "Computing CQT"
+        if self.verbose: print("Computing CQT")
         if hasattr(self, '_spCQT'):
             del self._spCQT
         cqtkernel = self.cqtkernel
@@ -495,7 +495,7 @@ class CQTransfo(object):
         if not self.cqtkernel.perfRast: # this is working well enough but...
             for i in np.arange(self.octaveNr):
                 if self.verbose:
-                    print "    Octave n.", i, "out of", self.octaveNr
+                    print("    Octave n.", i, "out of", self.octaveNr)
                 # %generating FFT blocks
                 nframes = (
                     np.floor(((x.size - cqtkernel.FFTLen) /
@@ -508,7 +508,7 @@ class CQTransfo(object):
                                            dtype=np.complex)
                 for n in np.arange(nframes):
                     if self.verbose>1:
-                        print "        nframe", n, "out of", nframes
+                        print("        nframe", n, "out of", nframes)
                     # %applying fft to each column (each FFT frame)
                     framestart = n*cqtkernel.fftHOP
                     framestop = framestart + cqtkernel.FFTLen
@@ -529,7 +529,7 @@ class CQTransfo(object):
             ahop = self.cqtkernel.atomHOP # in samples, for the first octave
             for i in np.arange(self.octaveNr):
                 if self.verbose:
-                    print "    Octave n.", i+1, "out of", self.octaveNr
+                    print("    Octave n.", i+1, "out of", self.octaveNr)
                 inc = ahop / (2.**i)
                 # bin frequency numbers in the CQT transfo:
                 binVec = np.int32(
@@ -549,7 +549,7 @@ class CQTransfo(object):
                 # have to drop them so as to obtain aligned frames at all
                 # octaves.
                 if self.verbose>2:
-                    print "        drop", drop # DEBUG
+                    print("        drop", drop) # DEBUG
                 nframes = (
                     np.floor(((x.size - cqtkernel.FFTLen)/cqtkernel.fftHOP)+1)
                     )
@@ -568,7 +568,7 @@ class CQTransfo(object):
                 nshifts = int(2**i)
                 for n in np.arange(nframes):
                     if self.verbose>2:
-                        print "            nframe", n+1, "out of", nframes
+                        print("            nframe", n+1, "out of", nframes)
                     # %applying fft to each column (each FFT frame)
                     framestart = n * self.cqtkernel.fftHOP
                     framestop = framestart + self.cqtkernel.FFTLen
@@ -583,7 +583,7 @@ class CQTransfo(object):
                     # each octave.
                     # 
                     if self.verbose>1:
-                        print "        shift n.", nshift+1, "out of", (2**i)
+                        print("        shift n.", nshift+1, "out of", (2**i))
                     shift = nshift * inc
                     # in original matlab code, this is conjugated,
                     # but K is here already conjugated
@@ -599,8 +599,8 @@ class CQTransfo(object):
                         self.cellCQT[i] = np.copy(CQTframe)
                     if atomNr>1:
                         if self.verbose>1:
-                            print "            filling in CQT matrix, "+\
-                                  "many windows per frame"
+                            print("            filling in CQT matrix, "+\
+                                  "many windows per frame")
                         for nb, b in enumerate(binVec):
                             # nb is the bin number in the current octave
                             #    representation
@@ -628,8 +628,8 @@ class CQTransfo(object):
                         # TODO: not sure whether this piece of code works:
                         #    needs testing!
                         if self.verbose>1:
-                            print "            filling in CQT matrix, "+\
-                                  "one window per frame"
+                            print("            filling in CQT matrix, "+\
+                                  "one window per frame")
                         self._spCQT[binVec,
                                     int(nshift):(nframes*nshifts):nshifts] = (
                             CQTframe[:,:] #CQTframe[:,int(drop*nshifts):]
@@ -731,7 +731,7 @@ class CQTransfo(object):
     def _set_spCQT(self, value):
         self._spCQT = value
         if self.verbose>1:
-            print "    Setting spCQT, resetting cellCQT"
+            print("    Setting spCQT, resetting cellCQT")
         self.spCQT2CellCQT()
     
     spCQT = property(fget=_get_spCQT,
@@ -783,12 +783,12 @@ class CQTransfo(object):
         NB: here, self.cellCQT is written over, if it existed. 
         """
         if self.verbose:
-            print "Computing the cell representation from the matrix "+\
-                  "representation..."
+            print("Computing the cell representation from the matrix "+\
+                  "representation...")
         self.spCQT2CellCQT()
         if self.verbose:
-            print "... and then computing the inverse from the newly "+\
-                  "generated cells."
+            print("... and then computing the inverse from the newly "+\
+                  "generated cells.")
         return self.invertFromCellCQT()
 
     def invertFromSpCQTRast(self):
@@ -807,7 +807,7 @@ class CQTransfo(object):
         # from low to high octave:
         for noct in range(int(self.octaveNr-1), -1, -1):
             if self.verbose:
-                print "    Octave n.", noct+1, "out of", self.octaveNr
+                print("    Octave n.", noct+1, "out of", self.octaveNr)
             inc = ahop / (2.**noct)
             nshifts = int(2**noct)
             
@@ -823,7 +823,7 @@ class CQTransfo(object):
             
             for nshift in np.arange(nshifts):
                 if self.verbose>1:
-                    print "        shift n.", nshift+1, "out of", nshifts
+                    print("        shift n.", nshift+1, "out of", nshifts)
                 self.spCQT2CellCQT()
                 
                 Y = np.dot(K, self.cellCQT[noct])
@@ -896,8 +896,8 @@ class CQTransfo(object):
             # self.cellCQT
             if atomNr>1:
                 if self.verbose>1:
-                    print "            filling in CQT matrix, "+\
-                          "many windows per frame"
+                    print("            filling in CQT matrix, "+\
+                          "many windows per frame")
                 for nb, b in enumerate(binVec):
                     for a in range(int(atomNr)):
                         self._spCQT[
@@ -914,8 +914,8 @@ class CQTransfo(object):
                         )
             else:
                 if self.verbose>1:
-                    print "            filling in CQT matrix, "+\
-                          "one window per frame"
+                    print("            filling in CQT matrix, "+\
+                          "one window per frame")
                 ##print self._spCQT[binVec, :int((self.cellCQT[noct].shape[1]
                 ##                      -drop) * nshifts):nshifts].shape#DEBUG
                 ##print self.cellCQT[noct][:, int(drop):].shape#DEBUG
@@ -1085,7 +1085,7 @@ class HybridCQTransfo(CQTransfo):
             perfRast=self.perfRast)
         self.freqbins = self.bins*self.octaveNr + self.cqtkernel.linBins
         
-        if 'data' in kwargs.keys() and kwargs['data'] is not None:
+        if 'data' in list(kwargs.keys()) and kwargs['data'] is not None:
             self.computeLinearPart(data=kwargs['data'])
     
     def cellCQT2spCQT(self):
@@ -1118,8 +1118,8 @@ class HybridCQTransfo(CQTransfo):
         
         if atomNr>1:
             if self.verbose>1:
-                print "            filling in CQT matrix, "+\
-                      "many windows per frame"
+                print("            filling in CQT matrix, "+\
+                      "many windows per frame")
             for nb, b in enumerate(binVec):
                 for a in range(int(atomNr)):
                     self._spCQT[
@@ -1136,8 +1136,8 @@ class HybridCQTransfo(CQTransfo):
                     )
         else:
             if self.verbose>1:
-                print "            filling in CQT matrix, "+\
-                      "one window per frame"
+                print("            filling in CQT matrix, "+\
+                      "one window per frame")
             self._spCQT[binVec, :int(self.cellCQT['linear'].shape[1]
                                      -drop)] = (
                 # might raise a bound error here...
@@ -1167,7 +1167,7 @@ class HybridCQTransfo(CQTransfo):
         for consistency and also for avoiding problems with window synchrony
         """
         if self.verbose:
-            print "Computing ``missing'' linear frequency part of the spectrum"
+            print("Computing ``missing'' linear frequency part of the spectrum")
         
         cqtkernel = self.cqtkernel
         
@@ -1182,7 +1182,7 @@ class HybridCQTransfo(CQTransfo):
         K = np.ascontiguousarray(np.conjugate(cqtkernel.linearSparKernel.T))
         if not self.cqtkernel.perfRast:       
             if self.verbose:
-                print "    Octave n.", 0, "out of", self.octaveNr
+                print("    Octave n.", 0, "out of", self.octaveNr)
             nframes = self.nframes[0]
             self.cellCQT['linear'] = np.zeros([cqtkernel.linBins
                                                * cqtkernel.winNr,
@@ -1194,7 +1194,7 @@ class HybridCQTransfo(CQTransfo):
                           dtype=np.complex)
             for n in np.arange(nframes):
                 if self.verbose>1:
-                    print "        nframe", n, "out of", nframes
+                    print("        nframe", n, "out of", nframes)
                 framestart = n*cqtkernel.fftHOP
                 framestop = framestart + cqtkernel.FFTLen
                 XX[:,n] = np.fft.fft(x[framestart:framestop],
@@ -1207,7 +1207,7 @@ class HybridCQTransfo(CQTransfo):
             emptyHops = self.cqtkernel.first_center *1./self.cqtkernel.atomHOP
             ahop = self.cqtkernel.atomHOP
             if self.verbose:
-                print "    Octave n.", 0, "out of", self.octaveNr
+                print("    Octave n.", 0, "out of", self.octaveNr)
             binVec = np.int32(
                     self.cqtkernel.bins * self.octaveNr +
                     np.arange(self.cqtkernel.linBins)
@@ -1227,7 +1227,7 @@ class HybridCQTransfo(CQTransfo):
                           dtype=np.complex)
             for n in np.arange(nframes):
                 if self.verbose>2:
-                    print "            nframe", n+1, "out of", nframes
+                    print("            nframe", n+1, "out of", nframes)
                 # %applying fft to each column (each FFT frame)
                 framestart = n * self.cqtkernel.fftHOP
                 framestop = framestart + self.cqtkernel.FFTLen
@@ -1239,8 +1239,8 @@ class HybridCQTransfo(CQTransfo):
             self.cellCQT['linear'] = np.dot(K, XX, out=self.cellCQT['linear'])
             if atomNr>1:
                 if self.verbose>1:
-                    print "            filling in CQT matrix, "+\
-                          "many windows per frame"
+                    print("            filling in CQT matrix, "+\
+                          "many windows per frame")
                 for nb, b in enumerate(binVec):
                     for a in range(int(atomNr)):
                         self._spCQT[
@@ -1254,8 +1254,8 @@ class HybridCQTransfo(CQTransfo):
                 # TODO: not sure whether this piece of code works:
                 #    needs testing!
                 if self.verbose>1:
-                    print "            filling in CQT matrix, "+\
-                          "one window per frame"
+                    print("            filling in CQT matrix, "+\
+                          "one window per frame")
                 self._spCQT[binVec] = (
                     self.cellCQT['linear'] #CQTframe[:,int(drop*nshifts):]
                     )
@@ -1398,7 +1398,7 @@ class MinQTransfo(CQTransfo):
             + self.cqtkernel.linBins
             )
         
-        if 'data' in kwargs.keys() and kwargs['data'] is not None:
+        if 'data' in list(kwargs.keys()) and kwargs['data'] is not None:
             self.computeLinearPart(data=kwargs['data'])
     
     def computeTransform(self, data):
@@ -1412,7 +1412,7 @@ class MinQTransfo(CQTransfo):
         taking only the desired frequencies.
         """
         if self.verbose:
-            print "Computing ``missing'' linear frequency part of the spectrum"
+            print("Computing ``missing'' linear frequency part of the spectrum")
 
         # to get the matrices aligned, needs to have the first frame
         # of STFT centered on self.cqtkernel.first_center (?)

@@ -50,8 +50,8 @@ Edited by Nicki Holighaus 01.03.11
 """
 
 import numpy as N
-from itertools import izip,chain,imap
-from util import fftp,ifftp,irfftp
+from itertools import chain
+from .util import fftp,ifftp,irfftp
 
 try:
     import theano as T
@@ -70,10 +70,10 @@ def nsigtf_sl(cseq,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False)
         fftsymm = lambda c: N.hstack((c[0],c[-1:0:-1])).conj()
         if reducedform:
             # no coefficients for f=0 and f=fs/2
-            symm = lambda fc: chain(fc,imap(fftsymm,fc[::-1]))
+            symm = lambda fc: chain(fc,map(fftsymm,fc[::-1]))
             sl = lambda x: chain(x[reducedform:len(gd)//2+1-reducedform],x[len(gd)//2+reducedform:len(gd)+1-reducedform])
         else:
-            symm = lambda fc: chain(fc,imap(fftsymm,fc[-2:0:-1]))
+            symm = lambda fc: chain(fc,map(fftsymm,fc[-2:0:-1]))
             sl = lambda x: x
     else:
         ln = len(gd)
@@ -83,13 +83,13 @@ def nsigtf_sl(cseq,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False)
     maxLg = max(len(gdii) for gdii in sl(gd))
 
     # get first slice
-    c0 = cseq.next()
+    c0 = next(cseq)
 
     fr = N.empty(nn,dtype=c0[0].dtype)  # Initialize output
     temp0 = N.empty(maxLg,dtype=fr.dtype)  # pre-allocation
     
     loopparams = []
-    for gdii,win_range in izip(sl(gd),sl(wins)):
+    for gdii,win_range in zip(sl(gd),sl(wins)):
         Lg = len(gdii)
         temp = temp0[:Lg]
         wr1 = win_range[:(Lg)//2]
@@ -104,7 +104,7 @@ def nsigtf_sl(cseq,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False)
         def loop(fr,fc):
             # The overlap-add procedure including multiplication with the synthesis windows
             # TODO: stuff loop into theano
-            for t,(gdii,wr1,wr2,sl1,sl2,temp) in izip(symm(fc),loopparams):
+            for t,(gdii,wr1,wr2,sl1,sl2,temp) in zip(symm(fc),loopparams):
                 t1 = temp[sl1]
                 t2 = temp[sl2]
                 t1[:] = t[sl1]
@@ -128,7 +128,7 @@ def nsigtf_sl(cseq,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False)
         assert len(c) == ln
 
         fr[:] = 0.
-        fc = map(fft,c)  # do transforms on coefficients - TODO: for matrixform we could do a FFT on the whole matrix along one axis
+        fc = list(map(fft,c))  # do transforms on coefficients - TODO: for matrixform we could do a FFT on the whole matrix along one axis
         
         # The overlap-add procedure including multiplication with the synthesis windows
         loop(fr,fc)
@@ -143,4 +143,4 @@ def nsigtf_sl(cseq,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False)
 
 # non-sliced version
 def nsigtf(c,gd,wins,nn,Ls=None,real=False,reducedform=0,measurefft=False):
-    return nsigtf_sl((c,),gd,wins,nn,Ls=Ls,real=real,reducedform=reducedform,measurefft=measurefft).next()
+    return next(nsigtf_sl((c,),gd,wins,nn,Ls=Ls,real=real,reducedform=reducedform,measurefft=measurefft))

@@ -18,8 +18,8 @@ class Scale:
             bnd = N.arange(self.bnds)
         return self.F(bnd)*self.dbnd/(self.F(bnd+self.dbnd)-self.F(bnd-self.dbnd))
     def __call__(self):
-        f = N.array([self.F(b) for b in xrange(self.bnds)],dtype=float)
-        q = N.array([self.Q(b) for b in xrange(self.bnds)],dtype=float)
+        f = N.array([self.F(b) for b in range(self.bnds)],dtype=float)
+        q = N.array([self.Q(b) for b in range(self.bnds)],dtype=float)
         return f,q
 
 class OctScale(Scale):
@@ -131,9 +131,9 @@ class MelScale(Scale):
 if __name__ == '__main__':
     scl = LinScale(50,10000,50)
     f,q = scl()
-    print f
-    print q
-    print [scl.Q1(b) for b in xrange(len(scl))]
+    print(f)
+    print(q)
+    print([scl.Q1(b) for b in range(len(scl))])
 
     
     

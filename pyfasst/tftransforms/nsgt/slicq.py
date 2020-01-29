@@ -11,23 +11,23 @@ Created on 05.11.2011
 '''
 
 import numpy as N
-from itertools import izip,cycle,chain,tee
+from itertools import cycle,chain,tee
 
-from slicing import slicing
-from unslicing import unslicing
-from nsdual import nsdual
-from nsgfwin_sl import nsgfwin
-from nsgtf import nsgtf_sl
-from nsigtf import nsigtf_sl
-from util import calcwinrange
-from fscale import OctScale
+from .slicing import slicing
+from .unslicing import unslicing
+from .nsdual import nsdual
+from .nsgfwin_sl import nsgfwin
+from .nsgtf import nsgtf_sl
+from .nsigtf import nsigtf_sl
+from .util import calcwinrange
+from .fscale import OctScale
 
 # one of the more expensive functions (32/400)
 def arrange(cseq,M,fwd):
-    c0 = cseq.next()  # grab first stream element
+    c0 = next(cseq)  # grab first stream element
     cseq = chain((c0,),cseq)  # push it back in 
     assert len(c0) == 1
-    M = map(len,c0[0])  # read off M from the coefficients
+    M = list(map(len,c0[0]))  # read off M from the coefficients
     ixs = (
            [(slice(3*mkk//4,mkk),slice(0,3*mkk//4)) for mkk in M],  # odd
            [(slice(mkk//4,mkk),slice(0,mkk//4)) for mkk in M]  # even
@@ -37,21 +37,21 @@ def arrange(cseq,M,fwd):
     else:
         ixs = cycle(ixs[::-1])
 
-    return ([[N.concatenate((ckk[ix0],ckk[ix1])) for ckk,(ix0,ix1) in izip(ci,ixi)] for ci in cci] for cci,ixi in izip(cseq,ixs))
+    return ([[N.concatenate((ckk[ix0],ckk[ix1])) for ckk,(ix0,ix1) in zip(ci,ixi)] for ci in cci] for cci,ixi in zip(cseq,ixs))
 
 def starzip(iterables):
     def inner(itr, i):
         for t in itr:
             yield t[i]
     iterables = iter(iterables) 
-    it = iterables.next()  # we need that to determine the length of one element
+    it = next(iterables)  # we need that to determine the length of one element
     iterables = chain((it,),iterables)
     return [inner(itr,i) for i,itr in enumerate(tee(iterables,len(it)))]
 
 def chnmap(gen,seq):
     chns = starzip(seq) # returns a list of generators (one for each channel)
-    gens = map(gen,chns) # generators including transformation
-    return izip(*gens)  # packing channels to one generator yielding channel tuples
+    gens = list(map(gen,chns)) # generators including transformation
+    return zip(*gens)  # packing channels to one generator yielding channel tuples
 
 class NSGT_sliced:
     def __init__(self,scale,sl_len,tr_area,fs,min_win=16,Qvar=1,real=False,recwnd=False,matrixform=False,reducedform=0,multichannel=False,measurefft=False):
@@ -134,8 +134,8 @@ class NSGT_sliced:
         sig = self.unchannelize(sig)
         
         # discard first two blocks (padding)
-        sig.next()
-        sig.next()
+        next(sig)
+        next(sig)
         return sig
 
 
@@ -171,7 +171,7 @@ class TestNSGT_slices(unittest.TestCase):
 
         rc = nsgt.backward(c)
         
-        s_r = N.concatenate(map(list,rc))[:len(sig)]
+        s_r = N.concatenate(list(map(list,rc)))[:len(sig)]
         rec_err = norm(sig-s_r)
         rec_err_n = rec_err/norm(sig)
 #        print "err abs",rec_err,"norm",rec_err_n
@@ -184,31 +184,31 @@ class TestNSGT_slices(unittest.TestCase):
         self.assertAlmostEqual(rec_err,0)
         
     def test_1d1(self):
-        self.runit(*map(int,"100000 100 18200 2 20000 5000 1".split())) # fail
+        self.runit(*list(map(int,"100000 100 18200 2 20000 5000 1".split()))) # fail
         
     def test_1d11(self):
-        self.runit(*map(int,"100000 80 18200 6 20000 5000 1".split())) # success
+        self.runit(*list(map(int,"100000 80 18200 6 20000 5000 1".split()))) # success
         
     def test_1(self):
-        self.runit(*map(int,"100000 99 19895 6 84348 5928 1".split()))  # fail
+        self.runit(*list(map(int,"100000 99 19895 6 84348 5928 1".split())))  # fail
         
     def test_1a(self):
-        self.runit(*map(int,"100000 99 19895 6 84348 5928 0".split()))  # success
+        self.runit(*list(map(int,"100000 99 19895 6 84348 5928 0".split())))  # success
         
     def test_1b(self):
-        self.runit(*map(int,"100000 100 20000 6 80000 5000 1".split()))  # fail
+        self.runit(*list(map(int,"100000 100 20000 6 80000 5000 1".split())))  # fail
         
     def test_1c(self):
-        self.runit(*map(int,"100000 100 19000 6 80000 5000 1".split())) # fail
+        self.runit(*list(map(int,"100000 100 19000 6 80000 5000 1".split()))) # fail
         
     def test_1d2(self):
-        self.runit(*map(int,"100000 100 18100 6 20000 5000 1".split())) # success
+        self.runit(*list(map(int,"100000 100 18100 6 20000 5000 1".split()))) # success
         
     def test_1e(self):
-        self.runit(*map(int,"100000 100 18000 6 20000 5000 1".split())) # success
+        self.runit(*list(map(int,"100000 100 18000 6 20000 5000 1".split()))) # success
         
     def gtest_oct(self):
-        for _ in xrange(100):
+        for _ in range(100):
             siglen = 100000
             fmin = N.random.randint(200)+30
             fmax = N.random.randint(22048-fmin)+fmin

@@ -19,7 +19,7 @@ Jean-Louis Durrieu, 2012 - 2013
 import numpy as np
 import warnings
 
-from tools.utils import *
+from .tools.utils import *
 
 """
 # functions to read and write audio files
@@ -68,9 +68,9 @@ try:
         sndfile.close()
         return 0
     
-    print "Reading and Writing WAV files with audiolab"
+    print("Reading and Writing WAV files with audiolab")
 except ImportError:
-    print "Using scipy.io.wavfile"
+    print("Using scipy.io.wavfile")
     import scipy.io.wavfile as wav
     
     def wavread(filename, first=0, last=None):
@@ -91,7 +91,7 @@ except ImportError:
                 formatenc = 'int16'
             else:
                 formatenc = 'int8'
-            print "Changing encoding to", formatenc
+            print("Changing encoding to", formatenc)
         data_ = np.array(data, dtype=formatenc)
         # print data_.dtype
         wav.write(filename, rate, data_)
@@ -149,7 +149,7 @@ class AudioObject(object):
     def _set_data(self, data):
         s = data.shape
         if s[0] < s[1] and s[1] > 2:
-            print "Data shape is strangely ordered: transposing input data."
+            print("Data shape is strangely ordered: transposing input data.")
             self._data = np.array(data.T, order='C')
         else:
             self._data = np.array(data, order='C')

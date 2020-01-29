@@ -36,10 +36,10 @@ EXTERNALS : firwin
 """
 
 import numpy as N
-from util import hannwin,blackharr,blackharrcw
+from .util import hannwin,blackharr,blackharrcw
 from math import ceil
 from warnings import warn
-from itertools import chain,izip
+from itertools import chain
 
 def nsgfwin(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
     nf = sr/2.
@@ -82,7 +82,7 @@ def nsgfwin(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
         M = N.zeros(fbas.shape,float)
         M[0] = 2*fbas[1]
         M[1] = fbas[1]/q[0] #(2**(1./bins[0])-2**(-1./bins[0]))
-        for k in chain(xrange(2,lbas),(lbas+1,)):
+        for k in chain(range(2,lbas),(lbas+1,)):
             M[k] = fbas[k+1]-fbas[k-1]
         M[lbas] = fbas[lbas]/q[lbas-1] #(2**(1./bins[-1])-2**(-1./bins[-1]))
 #        M[lbas+1] = fbas[lbas]/q[lbas-1] #(2**(1./bins[-1])-2**(-1./bins[-1]))
@@ -94,7 +94,7 @@ def nsgfwin(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
     else:
         M = N.zeros(fbas.shape,int)
         M[0] = N.round(2*fbas[1])
-        for k in xrange(1,2*lbas+1):
+        for k in range(1,2*lbas+1):
             M[k] = N.round(fbas[k+1]-fbas[k-1])
         M[-1] = N.round(Ls-fbas[-2])
         
@@ -169,7 +169,7 @@ def nsgfwin_new(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
         M = N.zeros(fbas.shape,float)
         M[0] = 2*fbas[1]
         M[1] = fbas[1]/q[0] #(2**(1./bins[0])-2**(-1./bins[0]))
-        for k in chain(xrange(2,lbas),(lbas+1,)):
+        for k in chain(range(2,lbas),(lbas+1,)):
             M[k] = fbas[k+1]-fbas[k-1]
         M[lbas] = fbas[lbas]/q[lbas-1] #(2**(1./bins[-1])-2**(-1./bins[-1]))
 #        M[lbas+1] = fbas[lbas]/q[lbas-1] #(2**(1./bins[-1])-2**(-1./bins[-1]))
@@ -182,7 +182,7 @@ def nsgfwin_new(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
     else:
         M = N.zeros(fbas.shape,int)
         M[0] = N.round(2*fbas[1])
-        for k in xrange(1,2*lbas+1):
+        for k in range(1,2*lbas+1):
             M[k] = N.round(fbas[k+1]-fbas[k-1])
         M[-1] = N.round(Ls-fbas[-2])
         
@@ -196,7 +196,7 @@ def nsgfwin_new(f,q,sr,Ls,sliced=True,min_win=4,Qvar=1,dowarn=True):
 
 #        shift = N.concatenate(([(-rfbas[-1])%Ls],N.diff(rfbas)))
 
-        g,M = N.array([blackharrcw(m*Qvar,csh) for m,csh in izip(M,corr_shift)]).T  ####
+        g,M = N.array([blackharrcw(m*Qvar,csh) for m,csh in zip(M,corr_shift)]).T  ####
 #        M = N.ceil(M/4).astype(int)*4  # bailing out for some strange reason....
         M = N.array([ceil(m/4)*4 for m in M],dtype=int)
     else:

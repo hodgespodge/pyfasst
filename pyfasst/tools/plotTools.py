@@ -47,7 +47,7 @@ def subplotsAudioModelSpecComps(model, fig=None, diffdispdb = 60 ):
         #            model.spec_comps[n]['factor'][0]['FB'],
         #            model.spec_comps[n]['factor'][0]['FW']),
         #            model.spec_comps[n]['factor'][0]['TW']))
-        for nfact, fact in model.spec_comps[n]['factor'].items():
+        for nfact, fact in list(model.spec_comps[n]['factor'].items()):
             logspec += 10*np.log10(
                 np.dot(
                 np.dot(
@@ -157,7 +157,7 @@ def plotTimeCorrelationMixingParams(model, **kwargs):
             np.abs(np.fft.ifft(model.spat_comps[spat_ind]['params'][0][1]
                                /model.spat_comps[spat_ind]['params'][0][0],
                                n=model.sig_repr_params['fsize'])))
-         for spat_ind in model.spat_comps.keys()]).T
+         for spat_ind in list(model.spat_comps.keys())]).T
     delays = (
         np.arange(model.sig_repr_params['fsize'])
         - model.sig_repr_params['fsize']/2)
@@ -166,7 +166,7 @@ def plotTimeCorrelationMixingParams(model, **kwargs):
         delays,
         delayDetectionFunction,
         **kwargs)
-    plt.legend(model.spat_comps.keys())
+    plt.legend(list(model.spat_comps.keys()))
     plt.xlabel('Delay in samples')
     
     return delays, delayDetectionFunction

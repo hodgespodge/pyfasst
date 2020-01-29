@@ -36,19 +36,29 @@ import numpy as np
 from numpy.testing import assert_array_almost_equal # FOR DEBUG/DEV
 import warnings, os
 
-import audioObject as ao
-import demixTF as demix
+from . import audioObject as ao
+from . import demixTF as demix
 
-import SeparateLeadStereo.SeparateLeadStereoTF as SLS
+from .SeparateLeadStereo import SeparateLeadStereoTF as SLS
 
-from sourcefilter.filter import generateHannBasis
-from spatial.steering_vectors import gen_steer_vec_far_src_uniform_linear_array
+# from . import SeparateLeadStereo.SeparateLeadStereoTF as SLS
+# from . import SeparateLeadStereo
 
-import tftransforms.tft as tft # loads the possible transforms
 
-import tools.signalTools as st
-from tools.signalTools import inv_herm_mat_2d
-from tools.nmf import NMF_decomp_init, NMF_decomposition
+from .sourcefilter.filter import generateHannBasis
+from .spatial.steering_vectors import gen_steer_vec_far_src_uniform_linear_array
+
+
+from .tftransforms import tft
+
+
+# from . import tftransforms.tft as tft # loads the possible transforms
+
+# from . import tools.signalTools as st
+from .tools import signalTools as st
+
+from .tools.signalTools import inv_herm_mat_2d
+from .tools.nmf import NMF_decomp_init, NMF_decomposition
 
 tftransforms = {
     'stftold': tft.TFTransform, # just making dummy, in FASST, not used
@@ -180,7 +190,7 @@ class FASST(object):
         
         if isinstance(audio, ao.AudioObject):
             self.audioObject = audio
-        elif isinstance(audio, str) or isinstance(audio, unicode):
+        elif isinstance(audio, str) or isinstance(audio, str):
             self.audioObject = ao.AudioObject(filename=audio)
         else:
             raise AttributeError("The provided audio parameter is"+
@@ -237,7 +247,8 @@ class FASST(object):
         
         # noise parameters
         self.noise = {}
-        self.noise['PSD'] = np.zeros(self.sig_repr_params['fsize']/2+1)
+
+        self.noise['PSD'] = np.zeros(self.sig_repr_params['fsize']//2+1)
         self.noise['sim_ann_opt'] = sim_ann_opt
         self.noise['ann_PSD_lim'] = ann_PSD_lim
         
@@ -260,8 +271,8 @@ class FASST(object):
                              " not implemented - yet?")
         
         if self.verbose:
-            print ("Computing the chosen signal representation:",
-                   self.sig_repr_params['transf'] )
+            print(("Computing the chosen signal representation:",
+                   self.sig_repr_params['transf'] ))
         
         nc = self.audioObject.channels
         Xchan = []
@@ -275,12 +286,13 @@ class FASST(object):
                     fs=self.audioObject.samplerate
                     )
             else:
+
                 self.tft.computeTransform(self.audioObject.data[:,n],)
                 X = self.tft.transfo
             Xchan.append(X)
             
         if self.verbose>1:
-            print X.shape
+            print(X.shape)
         
         self.nbFreqsSigRepr, self.nbFramesSigRepr = X.shape
         ##assert self.nbFreqsSigRepr == self.tft.freqbins
@@ -290,10 +302,20 @@ class FASST(object):
         if nc == 1:
             self.Cx = np.abs(Xchan[0])**2
         else:
-            self.Cx = np.zeros([nc * (nc + 1) / 2,
+
+            # print(nc * (nc + 1) / 2)
+            # print(self.nbFreqsSigRepr)
+            # print(self.nbFramesSigRepr)
+
+
+            # print(np.zeros([nc * (nc + 1) // 2,self.nbFreqsSigRepr,self.nbFramesSigRepr],
+            #                    dtype=complex))
+
+            self.Cx = np.zeros([nc * (nc + 1) // 2,
                                 self.nbFreqsSigRepr,
                                 self.nbFramesSigRepr],
                                dtype=complex)
+
             for n1 in range(nc):
                 for n2 in range(n1, nc):
                     # note : we keep only upper diagonal of Cx
@@ -313,10 +335,10 @@ class FASST(object):
                     mix_psd += np.mean(self.Cx[n], axis=1)
                     
             if self.verbose>1:
-                print "mix_psd", mix_psd
+                print("mix_psd", mix_psd)
             mix_psd /= nc
             if self.verbose>1:
-                print "mix_psd/nc", mix_psd
+                print("mix_psd/nc", mix_psd)
             if self.noise['ann_PSD_lim'][0] is None:
                 self.noise['ann_PSD_lim'][0] = np.real(mix_psd) / 100.
             if self.noise['ann_PSD_lim'][1] is None:
@@ -363,7 +385,7 @@ class FASST(object):
             
         for i in range(self.iter_num):
             if self.verbose:
-                print "Iteration", i+1, "on", self.iter_num
+                print("Iteration", i+1, "on", self.iter_num)
             # adding the noise psd if required:
             if self.noise['sim_ann_opt'] in ['ann', 'ann_ns_inj']:
                 self.noise['PSD'] = (
@@ -375,9 +397,9 @@ class FASST(object):
             # running the GEM iteration:
             logliks[i] = self.GEM_iteration()
             if self.verbose:
-                print "    log-likelihood:", logliks[i]
+                print("    log-likelihood:", logliks[i])
                 if i>0:
-                    print "        improvement:", logliks[i]-logliks[i-1]
+                    print("        improvement:", logliks[i]-logliks[i-1])
 
         return logliks
     
@@ -409,7 +431,7 @@ class FASST(object):
                               self.nbFreqsSigRepr,
                               self.nbFramesSigRepr])
             if self.verbose > 1:
-                print "rank_part_in", rank_part_ind
+                print("rank_part_in", rank_part_ind)
             for w in range(len(rank_part_ind)):
                 hat_W[w] = np.mean(hat_Ws[rank_part_ind[w]], axis=0)
                 
@@ -470,7 +492,7 @@ class FASST(object):
         if len(spec_comp_ind):
             spec_comp_ind_arr = spec_comp_ind
         else:
-            spec_comp_ind_arr = self.spec_comps.keys()
+            spec_comp_ind_arr = list(self.spec_comps.keys())
         
         for k in spec_comp_ind_arr:
             if spat_comp_ind == self.spec_comps[k]['spat_comp_ind']:
@@ -478,7 +500,7 @@ class FASST(object):
                 if len(factor_ind):
                     factors_ind_arr = factor_ind
                 else:
-                    factors_ind_arr = self.spec_comps[k]['factor'].keys()
+                    factors_ind_arr = list(self.spec_comps[k]['factor'].keys())
                     
                 for f in factors_ind_arr:
                     factor = self.spec_comps[k]['factor'][f]
@@ -548,8 +570,8 @@ class FASST(object):
             else:
                 rank = self.spat_comps[j]['params'].shape[0]
             if self.verbose>1:
-                print "    Rank of spatial source %d" %j +\
-                      " is %d" %rank
+                print("    Rank of spatial source %d" %j +\
+                      " is %d" %rank)
             rank_part_ind[j] = (
                 rank_total +
                 np.arange(rank))
@@ -562,7 +584,7 @@ class FASST(object):
         mix_matrix = np.zeros([rank_total,
                                self.audioObject.channels,
                                self.nbFreqsSigRepr], dtype=complex)
-        for j, spat_comp in self.spat_comps.items():
+        for j, spat_comp in list(self.spat_comps.items()):
             spat_comp_j = self.comp_spat_comp_power(spat_comp_ind=j)
             for r in rank_part_ind[j]:
                 spat_comp_powers[r] = spat_comp_j
@@ -606,7 +628,7 @@ class FASST(object):
             raise ValueError("Nb channels not supported:"+
                              str(self.audioObject.channels))
         
-        if self.verbose: print "    Computing sufficient statistics"
+        if self.verbose: print("    Computing sufficient statistics")
         nbspatcomp = spat_comp_powers.shape[0]
         
         # CAUTION! non-initialized arrays !
@@ -791,7 +813,7 @@ class FASST(object):
         upd_inst_other_ind = []
         upd_conv_ind = []
         upd_conv_other_ind = []
-        for j, spat_comp_j in self.spat_comps.items():
+        for j, spat_comp_j in list(self.spat_comps.items()):
             if spat_comp_j['frdm_prior'] == 'free' and \
                    spat_comp_j['mix_type'] == 'inst':
                 upd_inst_ind.extend(rank_part_ind[j])
@@ -809,7 +831,7 @@ class FASST(object):
         
         if len(upd_inst_ind):
             if self.verbose:
-                print "    Updating mixing matrix, instantaneous sources"
+                print("    Updating mixing matrix, instantaneous sources")
             #hat_Rxs_bis = np.zeros([self.nbFreqsSigRepr,
             #                        2,
             #                        K_inst])
@@ -830,11 +852,11 @@ class FASST(object):
             mix_matrix_inst = np.linalg.solve(rm_hat_Rss.T, hat_Rxs_bis.T)
             #                                   sym_pos=True).T
             if self.verbose>1:
-                print "mix_matrix", mix_matrix
-                print "mix_matrix_inst", mix_matrix_inst
-                print "mix_matrix_inst.shape",mix_matrix_inst.shape
-                print mix_matrix.shape, \
-                      mix_matrix[upd_inst_ind].shape
+                print("mix_matrix", mix_matrix)
+                print("mix_matrix_inst", mix_matrix_inst)
+                print("mix_matrix_inst.shape",mix_matrix_inst.shape)
+                print(mix_matrix.shape, \
+                      mix_matrix[upd_inst_ind].shape)
             for f in range(self.nbFreqsSigRepr):
                 mix_matrix[upd_inst_ind,:,f] = mix_matrix_inst
                 
@@ -843,7 +865,7 @@ class FASST(object):
         # update convolutive coefficients: 
         if len(upd_conv_ind):
             if self.verbose:
-                print "    Updating mixing matrix, convolutive sources"
+                print("    Updating mixing matrix, convolutive sources")
             hat_Rxs_bis = hat_Rxs[:,:,upd_conv_ind]
             if len(upd_conv_other_ind):
                 for f in range(self.nbFreqsSigRepr):
@@ -856,8 +878,8 @@ class FASST(object):
                     mix_matrix[upd_conv_ind,:,f] = (
                         np.linalg.solve(hat_Rss[f].T, hat_Rxs_bis[f].T))
                 except np.linalg.linalg.LinAlgError:
-                    print "hat_Rss[f]:", hat_Rss[f]
-                    print "hat_Rxs_bis[f]:", hat_Rxs_bis[f]
+                    print("hat_Rss[f]:", hat_Rss[f])
+                    print("hat_Rxs_bis[f]:", hat_Rxs_bis[f])
                     raise np.linalg.LinAlgError('Singular Matrix')
                 except:
                     raise # re-raise the exception if that was not linalgerror...
@@ -875,7 +897,7 @@ class FASST(object):
             ##            )
             
         # update the matrix in the component parameters:
-        for k, spat_comp_k in self.spat_comps.items():
+        for k, spat_comp_k in list(self.spat_comps.items()):
             if spat_comp_k['frdm_prior'] == 'free':
                 if spat_comp_k['mix_type'] == 'inst':
                     spat_comp_k['params'] = (
@@ -931,7 +953,7 @@ class FASST(object):
         spec_comp_ind = {}
         for spat_ind in range(len(self.spat_comps)):
             spec_comp_ind[spat_ind] = []
-        for spec_ind, spec_comp in self.spec_comps.items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
             # add the spec comp index to the corresponding spatial comp:
             spec_comp_ind[spec_comp['spat_comp_ind']].append(spec_ind)
             
@@ -942,7 +964,7 @@ class FASST(object):
                 self.audioObject.filename.split('/')[:-1])
                 )
             if self.verbose:
-                print "Writing to same directory as input file: " + dir_results
+                print("Writing to same directory as input file: " + dir_results)
         
         nc = self.audioObject.channels
         if nc != 2:
@@ -1078,7 +1100,7 @@ class FASST(object):
         spec_comp_ind = {}
         for spat_ind in range(len(self.spat_comps)):
             spec_comp_ind[spat_ind] = []
-        for spec_ind, spec_comp in self.spec_comps.items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
             spec_comp_ind[spec_comp['spat_comp_ind']].append(spec_ind)
             
         self.separate_comps(dir_results=dir_results,
@@ -1121,7 +1143,7 @@ class FASST(object):
                 self.audioObject.filename.split('/')[:-1])
                 )
             if self.verbose:
-                print "Writing to same directory as input file: " + dir_results
+                print("Writing to same directory as input file: " + dir_results)
         
         nc = self.audioObject.channels
         if nc != 2:
@@ -1142,16 +1164,16 @@ class FASST(object):
         
         # computing individual source variance
         for n in range(nbSources):
-            if self.verbose>1: print "    source",n+1,"out of",nbSources
+            if self.verbose>1: print("    source",n+1,"out of",nbSources)
             spat_comp_ind = np.unique(
                 [self.spec_comps[spec_ind]['spat_comp_ind']
                  for spec_ind in spec_comp_ind[n]]
                 )
-            if self.verbose>1: print "        spat_comp_ind", spat_comp_ind
+            if self.verbose>1: print("        spat_comp_ind", spat_comp_ind)
             for spat_ind in spat_comp_ind:
                 if self.verbose>1:
-                    print "        spatial comp",spat_ind+1, \
-                          "out of", (spat_comp_ind)
+                    print("        spatial comp",spat_ind+1, \
+                          "out of", (spat_comp_ind))
                 sigma_c_diag, sigma_c_off = (
                     self.compute_sigma_comp_2d(spat_ind, spec_comp_ind[n])
                     )
@@ -1255,7 +1277,7 @@ class FASST(object):
         Cx[1][:,:] = np.vstack(Cx[1].mean(axis=1))
         Cx[2][:,:] = np.vstack(Cx[2].mean(axis=1))
         if self.verbose>1:
-            print Cx
+            print(Cx)
         
         inv_Cx_diag, inv_Cx_off, det_Cx = inv_herm_mat_2d(
             [Cx[0], Cx[2]],
@@ -1355,9 +1377,9 @@ class FASST(object):
                                     self.nbFreqsSigRepr,
                                     self.nbFramesSigRepr])
         if self.verbose>1:
-            print R_diag0, "R_diag0.shape", R_diag0.shape
-            print R_diag1, "R_diag1.shape", R_diag1.shape
-            print R_off, "R_off.shape", R_off.shape
+            print(R_diag0, "R_diag0.shape", R_diag0.shape)
+            print(R_diag1, "R_diag1.shape", R_diag1.shape)
+            print(R_off, "R_off.shape", R_off.shape)
         
         sigma_comp_diag[0] = (
             np.vstack(R_diag0) *
@@ -1472,11 +1494,11 @@ class FASST(object):
         (and computed from )
         """
         if self.verbose:
-            print "    Update the spectral components"
+            print("    Update the spectral components")
         omega = self.nmfUpdateCoeff
         nbspeccomp = len(self.spec_comps)
         
-        for spec_comp_ind, spec_comp in self.spec_comps.items():
+        for spec_comp_ind, spec_comp in list(self.spec_comps.items()):
             nbfactors = len(spec_comp['factor'])
             spat_comp_ind = spec_comp['spat_comp_ind']
             
@@ -1484,7 +1506,7 @@ class FASST(object):
             if self.lambdaCorr > 0: # min inter-src correlation approach
                 # this is the sum of all the spatial component powers
                 spat_comp_powers = np.maximum(self.comp_spat_cmps_powers(
-                    self.spat_comps.keys()), eps)
+                    list(self.spat_comps.keys())), eps)
                 ### we need the squared of that matrix too:
                 ##spat_comp_powers_sqd = spat_comp_powers ** 2
                 # the initial spatial comp. power of the current comp:
@@ -1506,9 +1528,9 @@ class FASST(object):
                         "%d negative values!" %np.sum(spat_comp_pow_minus >=0))
                     spat_comp_pow_minus = np.maximum(spat_comp_pow_minus, eps)
                 
-            for fact_ind, factor in spec_comp['factor'].items():
+            for fact_ind, factor in list(spec_comp['factor'].items()):
                 # update FB - freq basis
-                other_fact_ind_arr = range(nbfactors)
+                other_fact_ind_arr = list(range(nbfactors))
                 other_fact_ind_arr.remove(fact_ind)
                 other_fact_power = (
                     np.maximum(
@@ -1520,8 +1542,8 @@ class FASST(object):
                     )
                 if factor['FB_frdm_prior'] == 'free':
                     if self.verbose>1:
-                        print "    Updating frequency basis %d-%d" %(
-                            spec_comp_ind, fact_ind)
+                        print("    Updating frequency basis %d-%d" %(
+                            spec_comp_ind, fact_ind))
                     spat_comp_power = (
                         np.maximum(
                             self.comp_spat_comp_power(
@@ -1577,8 +1599,8 @@ class FASST(object):
                 # update FW - freq weight
                 if factor['FW_frdm_prior'] == 'free':
                     if self.verbose>1:
-                        print "    Updating frequency weights %d-%d" %(
-                            spec_comp_ind, fact_ind)
+                        print("    Updating frequency weights %d-%d" %(
+                            spec_comp_ind, fact_ind))
                     spat_comp_power = (
                         np.maximum(
                             self.comp_spat_comp_power(
@@ -1634,8 +1656,8 @@ class FASST(object):
                 if factor['TW_frdm_prior'] == 'free':
                     if factor['TW_constr'] == 'NMF':
                         if self.verbose>1:
-                            print "    Updating time weights %d-%d" %(
-                                spec_comp_ind, fact_ind)
+                            print("    Updating time weights %d-%d" %(
+                                spec_comp_ind, fact_ind))
                         spat_comp_power = (
                             np.maximum(
                                 self.comp_spat_comp_power(
@@ -1731,8 +1753,8 @@ class FASST(object):
                             "to take into account the different factors. ")
                         nbfaccomps = factor['TW'].shape[0]
                         if self.verbose>1:
-                            print "    Updating time weights, "+\
-                                  "discrete state-based constraints"
+                            print("    Updating time weights, "+\
+                                  "discrete state-based constraints")
                         if len(factor['TB']):
                             errorMsg = "In this implementation, "+\
                                        "as in Ozerov's, non-trivial "+\
@@ -1766,8 +1788,8 @@ class FASST(object):
                             factor['TW_all'][:] = 1.
                             
                         if self.verbose:
-                            print "    Computing the Itakura Saito distance"+\
-                                  " matrix"
+                            print("    Computing the Itakura Saito distance"+\
+                                  " matrix")
                         ISdivMatrix = np.zeros([nbfaccomps,
                                                 self.nbFramesSigRepr])
                         for compnb in range(nbfaccomps):
@@ -1836,7 +1858,7 @@ class FASST(object):
                         # trade-off with the provided TW_DP_params
                         # (temporal constraints)
                         if self.verbose:
-                            print "    Decoding the state sequence"
+                            print("    Decoding the state sequence")
                         if factor['TW_constr'] in ('GMM', 'GSMM'):
                             active_state_seq = (
                                 np.argmin(
@@ -1848,8 +1870,8 @@ class FASST(object):
                             del ISdivMatrix
                         elif factor['TW_constr'] in ('HMM', 'SHMM'):
                             if self.verbose:
-                                print "        Viterbi algorithm to "+\
-                                      "determine the active state sequence"
+                                print("        Viterbi algorithm to "+\
+                                      "determine the active state sequence")
                             accumulateVec = (
                                 ISdivMatrix[:,0] -
                                 np.log(1. / nbfaccomps)
@@ -1867,7 +1889,7 @@ class FASST(object):
                                     )
                                 accumulateVec += (
                                     tmpMat[antecedentMat[:,n],
-                                           range(nbfaccomps)] + 
+                                           list(range(nbfaccomps))] + 
                                     ISdivMatrix[:,n]
                                     )
                                 # to avoid overflow?
@@ -1890,7 +1912,7 @@ class FASST(object):
                                 "than GMM, GSMM, HMM and SHMM")
                         
                         if self.verbose:
-                            print "    Update Time Weights"
+                            print("    Update Time Weights")
                             
                         factor['TW'][:] = 0.
                         for framenb in range(self.nbFramesSigRepr):
@@ -1900,7 +1922,7 @@ class FASST(object):
                                 )
                             
                         if factor['TW_DP_frdm_prior'] == 'free':
-                            print "    Updating the transition probabilities"
+                            print("    Updating the transition probabilities")
                             if factor['TW_constr'] in ('GMM', 'GSMM'):
                                 for compnb in range(nbfaccomps):
                                     factor['TW_DP_params'][compnb] = (
@@ -1929,7 +1951,7 @@ class FASST(object):
                         
                 # update TB = time basis
                 if len(factor['TB']) and factor['TB_frdm_prior'] == 'free':
-                    if self.verbose>1: print "    Updating Time basis"
+                    if self.verbose>1: print("    Updating Time basis")
                     spat_comp_power = (
                         np.maximum(
                             self.comp_spat_comp_power(
@@ -1983,29 +2005,29 @@ class FASST(object):
         Re-normalize the components
         """
         if self.verbose>0:
-            print "    re-normalizing components"
+            print("    re-normalizing components")
         pass
         if self.verbose>1:
-            print "         normalizing spatial components..."
+            print("         normalizing spatial components...")
         # renormalize spatial components
         Kspat = len(self.spat_comps)
         spat_global_energy = np.zeros(Kspat)
-        for spat_ind, spat_comp in self.spat_comps.items():
+        for spat_ind, spat_comp in list(self.spat_comps.items()):
             spat_global_energy[spat_ind] = (
                 np.mean (np.abs(spat_comp['params'])**2))
             spat_comp['params'] /= np.sqrt(spat_global_energy[spat_ind])
             
         if self.verbose>5:
-            print "spat_global_energy", spat_global_energy
+            print("spat_global_energy", spat_global_energy)
         
         # renormalize spectral components
         Kspec = len(self.spec_comps)
-        for spec_ind, spec_comp in self.spec_comps.items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
             global_energy = spat_global_energy[spec_comp['spat_comp_ind']]
             
             nbfactors = len(spec_comp['factor'])
             
-            for fact_ind, factor in spec_comp['factor'].items():
+            for fact_ind, factor in list(spec_comp['factor'].items()):
                 factor['FB'] *= global_energy
                 w = factor['FB'].max(axis=0)#.mean(axis=0)
                 w[w==0] = 1.
@@ -2024,8 +2046,8 @@ class FASST(object):
                         factor['TW'] = np.random.randn(*factor['TW'].shape)**2
                         factor['TW'] *= 1e3 * eps # so it s not too small
                         if self.verbose:
-                            print "    renorm: reinitialized TW for spec",
-                            print spec_ind, "factor", fact_ind
+                            print("    renorm: reinitialized TW for spec", end=' ')
+                            print(spec_ind, "factor", fact_ind)
                     if len(factor['TB']):
                         w = factor['TB'].mean(axis=1)
                         w[w==0] = 1.
@@ -2049,7 +2071,7 @@ class FASST(object):
         TODO 20130522 finish this function to make it general purpose...
         """
         ###### DEBUG #####
-        print "NOT IMPLEMENTED YET, PLEASE SET THE COMPONENTS DIRECTLY"
+        print("NOT IMPLEMENTED YET, PLEASE SET THE COMPONENTS DIRECTLY")
         pass
         ###### DEBUG #####
         if keepDimenstions:
@@ -2072,7 +2094,7 @@ class FASST(object):
                                      "signal representation.")
                 if newShape[1] != oldShape[1]:
                     if self.verbose:
-                        print "    Changing the Freq Weights for FB:"
+                        print("    Changing the Freq Weights for FB:")
                         self.spec_comp[spec_ind]['factor'][fact_ind]['FB']
                 self.spec_comp[spec_ind]['factor'][fact_ind]['FB'] = newValue
             elif partLabel == 'FW':
@@ -2130,7 +2152,7 @@ class FASST(object):
         """
         # list of the sizes of the 0th factors, of all components
         nbSpecComps = [spec_comp['factor'][0]['FB'].shape[1]
-                       for spec_comp in self.spec_comps.values()]
+                       for spec_comp in list(self.spec_comps.values())]
         totalNMFComps = np.sum(nbSpecComps)
         
         # initializing the NMF FreqBasis (FB) and TimeWeight (TW)
@@ -2138,7 +2160,7 @@ class FASST(object):
         FBinit = np.zeros([self.nbFreqsSigRepr, totalNMFComps])
         TWinit = np.zeros([totalNMFComps, self.nbFramesSigRepr])
         
-        for spec_ind, spec_comp in self.spec_comps.items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
             ind_start = np.sum(nbSpecComps[:spec_ind])
             ind_stop = ind_start + nbSpecComps[spec_ind]
             FBinit[:,ind_start:ind_stop] = (
@@ -2164,7 +2186,7 @@ class FASST(object):
                                updateH=updateTimeWeight)
         
         # copy the result in the corresponding spec_comps:
-        for spec_ind, spec_comp in self.spec_comps.items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
             ind_start = np.sum(nbSpecComps[:spec_ind])
             ind_stop = ind_start + nbSpecComps[spec_ind]
             if updateFreqBasis:
@@ -2186,12 +2208,12 @@ class FASST(object):
         matrices `W` and `H`.
         """
         if not np.all([len(spec_comp['factor'])==1
-                       for spec_comp in self.spec_comps.values()]):
+                       for spec_comp in list(self.spec_comps.values())]):
             raise NotImplementedError(
                 "NMF init not implemented for multi factor models.")
         
         nbSpecComps = [spec_comp['factor'][0]['FB'].shape[1]
-                       for spec_comp in self.spec_comps.values()]
+                       for spec_comp in list(self.spec_comps.values())]
         nbComps = np.max(nbSpecComps)
         
         nc = self.audioObject.channels
@@ -2214,7 +2236,7 @@ class FASST(object):
         W = W[:,indexSort]
         H = H[indexSort]
         
-        for spec_comp in self.spec_comps.values():
+        for spec_comp in list(self.spec_comps.values()):
             ncomp = spec_comp['factor'][0]['FB'].shape[1]
             spec_comp['factor'][0]['FB'][:] = W[:, :ncomp]
             spec_comp['factor'][0]['TW'][:] = H[:ncomp]
@@ -2233,7 +2255,7 @@ class FASST(object):
         
         """
         nc = self.audioObject.channels
-        for spat_ind, spat_comp in self.spat_comps.items():
+        for spat_ind, spat_comp in list(self.spat_comps.items()):
             if spat_comp['mix_type'] != 'inst':
                 warnings.warn("Spatial component %d "%spat_ind+
                               "already not instantaneous, overwriting...")
@@ -2526,8 +2548,8 @@ class MultiChanHMM(MultiChanNMFConv):
         """
         Turns the required parameters into HMM time constraints
         """
-        for spec_ind, spec_comp in self.spec_comps.items():
-            for fac_ind, factor in spec_comp['factor'].items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
+            for fac_ind, factor in list(spec_comp['factor'].items()):
                 factor['TW_constr'] = 'HMM'
                 factor['TW_DP_frdm_prior'] = 'free'
     
@@ -2535,8 +2557,8 @@ class MultiChanHMM(MultiChanNMFConv):
         """
         Turns the required parameters into SHMM time constraints
         """
-        for spec_ind, spec_comp in self.spec_comps.items():
-            for fac_ind, factor in spec_comp['factor'].items():
+        for spec_ind, spec_comp in list(self.spec_comps.items()):
+            for fac_ind, factor in list(spec_comp['factor'].items()):
                 nbfaccomps = factor['TW'].shape[0]
                 factor['TW_constr'] = 'SHMM'
                 factor['TW_DP_params'] = (
@@ -2797,10 +2819,10 @@ class multiChanSourceF0Filter(FASST):
             instrumentNames[n] = i
             if i == 'SourceFilter':
                 self.spec_comps[n]['label'] = i
-                print "    Source", n, "left as general Source-Filter model."
+                print("    Source", n, "left as general Source-Filter model.")
             elif 'Free' in i: # assumes Free_nbNMFComps
                 nbNMFComps = int(i.split('_')[-1])
-                print "    Source", n, "set as free NMF source."
+                print("    Source", n, "set as free NMF source.")
                 # initialize single factor spectral component
                 self.spec_comps[n] = {}
                 self.spec_comps[n]['label'] = i
@@ -2832,7 +2854,7 @@ class multiChanSourceF0Filter(FASST):
                 else:
                     self.spec_comps[n]['sparsity'] = sparsity[0]
             else: #if i != 'SourceFilter':
-                print "    Source", n, "is", i
+                print("    Source", n, "is", i)
                 modelfile = instru2modelfile[i]
                 struc = np.load(modelfile)
                 gsmm = struc['gsmm'].tolist()
@@ -2937,7 +2959,7 @@ class multiChanSourceF0Filter(FASST):
         """
         
         logSigma0 = np.log(np.max([spec['factor'][0]['TW'].shape[0]
-                                   for spec in self.spec_comps.values()])**2)
+                                   for spec in list(self.spec_comps.values())])**2)
         logSigmaInf = np.log(9.0)
         
         logliks = np.ones(self.iter_num)
@@ -2953,7 +2975,7 @@ class multiChanSourceF0Filter(FASST):
             
         for i in range(self.iter_num):
             if self.verbose:
-                print "Iteration", i+1, "on", self.iter_num
+                print("Iteration", i+1, "on", self.iter_num)
             # adding the noise psd if required:
             if self.noise['sim_ann_opt'] in ['ann', 'ann_ns_inj']:
                 self.noise['PSD'] = (
@@ -2965,9 +2987,9 @@ class multiChanSourceF0Filter(FASST):
             # running the GEM iteration:
             logliks[i] = self.GEM_iteration()
             if self.verbose:
-                print "    log-likelihood:", logliks[i]
+                print("    log-likelihood:", logliks[i])
                 if i>0:
-                    print "        improvement:", logliks[i]-logliks[i-1]
+                    print("        improvement:", logliks[i]-logliks[i-1])
                     
             # sparsity
             sigma = np.exp(logSigma0 +
@@ -2982,8 +3004,8 @@ class multiChanSourceF0Filter(FASST):
         """reweigh_sparsity_constraint
         """
         if self.verbose>1:
-            print "reweigh_sparsity_constraint:"
-            print "    sigma", sigma
+            print("reweigh_sparsity_constraint:")
+            print("    sigma", sigma)
         for j in range(self.nbComps):
             spec_comp = self.spec_comps[j]
             if spec_comp['sparsity'] and \
@@ -3001,8 +3023,8 @@ class multiChanSourceF0Filter(FASST):
                 # smoothing the sequence:
                 muTW  = st.medianFilter(muTW, length=spec_comp['sparsity'])
                 if self.verbose>1:
-                    print "        muTW NaNs in comp %d:" %j,
-                    print np.any(np.isnan(muTW))
+                    print("        muTW NaNs in comp %d:" %j, end=' ')
+                    print(np.any(np.isnan(muTW)))
                 
                 twmask = (
                     np.exp(- 0.5 *
@@ -3178,7 +3200,7 @@ class multichanLead(multiChanSourceF0Filter):
         suffix = dict(instrumentNames)
         # suffix[len(suffix)] = ''
         if self.verbose>1:
-            print 'suffix', suffix
+            print('suffix', suffix)
         
         self.renormalize_parameters()
         
@@ -3230,7 +3252,7 @@ class multichanLead(multiChanSourceF0Filter):
                                  suffix=suffix)
         
         if self.verbose>1:
-            print suffix
+            print(suffix)
         
         # replace this with method:
         # run DEMIX on the separated files:
@@ -3258,8 +3280,8 @@ class multichanLead(multiChanSourceF0Filter):
         
         # Separate and Write them...
         if self.verbose:
-            print "Writing files to", dir_results
-            print self.files
+            print("Writing files to", dir_results)
+            print(self.files)
         self.separate_spat_comps(dir_results=dir_results,
                                  suffix=suffix)
         return logliks
@@ -3387,7 +3409,7 @@ class multichanLead(multiChanSourceF0Filter):
             warnMsg = "There are no clusters in demix, returning dummy matrix."
             warnings.warn(warnMsg)
             if self.verbose:
-                print warnMsg
+                print(warnMsg)
             return np.cos(0.25 * np.pi) * np.ones([nsources,
                                                    A.shape[1], A.shape[2]])
         return A
@@ -3403,10 +3425,10 @@ class multichanLead(multiChanSourceF0Filter):
         estFiles = self.files['spat_comp']
         nbSources = len(self.spat_comps)
         if self.verbose>1:
-            print nbSources, "sources:", estFiles
+            print(nbSources, "sources:", estFiles)
         for nest, estfilename in enumerate(estFiles):
             if self.verbose>1:
-                print estfilename
+                print(estfilename)
             A = self.demixOnGivenFile(estfilename, nsources=1)
             for r in range(self.rank[nest]):
                 self.spat_comps[nest]['params'][r][:,:] = (

@@ -13,7 +13,7 @@ def sndreader(sf,blksz=2**16):
         channels = lambda s: s.T
     else:
         channels = lambda s: s.reshape((1,-1))
-    for offs in xrange(0,sf.nframes,blksz):
+    for offs in range(0,sf.nframes,blksz):
         yield channels(sf.read_frames(min(sf.nframes-offs,blksz)))
 
 def sndwriter(sf,blkseq,maxframes=None):

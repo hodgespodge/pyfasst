@@ -105,8 +105,8 @@ def directivity_filter_diagram_ULA(n_sensors=2, dist_inter_sensor=.15,
             distanceInterMic=dist_inter_sensor)) / np.sqrt(n_sensors)
     else: # check that the length is correct
         if w_filter.shape != (n_sensors, nfreqs):
-            print "w_filter.shape", w_filter.shape
-            print "expected shape", (n_sensors, nfreqs)
+            print("w_filter.shape", w_filter.shape)
+            print("expected shape", (n_sensors, nfreqs))
             raise ValueError("w_filter does not have the correct shape.")
         
     # computing the matrix of diagram:
@@ -283,10 +283,10 @@ def produceMVDRplots(theta_filter=np.pi/4., freqs=None, n_freqs=256,
                         dtype=np.complex) / np.sqrt(n_sensors)
     
     if any(np.abs((theta_filter-theta_interf)**2)<1e-3):#theta_filter in thetas:
-        print "we re here"
+        print("we re here")
         err = np.abs((theta_filter-theta_interf)**2)
         i_theta = np.argmin(err)
-        print "taking", theta_interf[i_theta] 
+        print("taking", theta_interf[i_theta]) 
         target_loc_vec = steering_vectors[:,:,i_theta].T
     else:
         target_loc_vec = (

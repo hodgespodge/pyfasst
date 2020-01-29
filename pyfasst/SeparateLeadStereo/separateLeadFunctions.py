@@ -220,7 +220,7 @@ def istft(X, analysisWindow=None,
     normalisationSeq[-lengthWindow:] = (
         normalisationSeq[(-2*lengthWindow):(-lengthWindow)])
     if np.any(normalisationSeq==0):
-        print "there were some 0s in there..."# DEBUG
+        print("there were some 0s in there...")# DEBUG
     normalisationSeq[normalisationSeq==0] = 1.
     data /= normalisationSeq
     
@@ -298,11 +298,11 @@ def generate_WF0_chirped(minF0, maxF0, Fs, Nfft=2048, stepNotes=4, \
                              '.npz'])
     
     if os.path.isfile(filename) and loadWF0:
-        print "Reading WF0 and F0Table from stored arrays."
+        print("Reading WF0 and F0Table from stored arrays.")
         struc = np.load(filename)
         return struc['F0Table'], struc['WF0']
     
-    print "First time WF0 computed with these parameters, please wait..."
+    print("First time WF0 computed with these parameters, please wait...")
     # converting to double arrays:
     minF0=np.double(minF0)
     maxF0=np.double(maxF0)
@@ -404,7 +404,7 @@ def generate_WF0_MinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
     #       the desired Nfft: - not necessary for minqt anymore
     # cqtfmax = np.ceil(3. * Fs / (Nfft * (2**(1./cqtbins) - 1)))
     # strange things happening to FFTLen...
-    if verbose>1: print "cqtfmax set to", cqtfmax
+    if verbose>1: print("cqtfmax set to", cqtfmax)
     mqt = minqt.MinQTransfo(linFTLen=Nfft,
                             fmin=cqtfmin,
                             fmax=cqtfmax,
@@ -441,14 +441,14 @@ def generate_WF0_MinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
                              '.npz'])
     
     if os.path.isfile(filename) and loadWF0:
-        print "Reading WF0 and F0Table from stored arrays in %s." %filename
+        print("Reading WF0 and F0Table from stored arrays in %s." %filename)
         struc = np.load(filename)
         return struc['F0Table'], struc['WF0'], struc['mqt'].tolist()
     else:
-        print "No such file: %s." %filename
+        print("No such file: %s." %filename)
         
     
-    print "First time WF0 computed with these parameters, please wait..."
+    print("First time WF0 computed with these parameters, please wait...")
     # converting to double arrays:
     minF0=np.double(minF0)
     maxF0=np.double(maxF0)
@@ -463,8 +463,8 @@ def generate_WF0_MinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
     numberElementsInWF0 = numberOfF0 * perF0
     
     if verbose>2:
-        print mqt.cqtkernel
-        print mqt.fmin, mqt.fmax, mqt.linFTLen, mqt.octaveNr, mqt.linBins
+        print(mqt.cqtkernel)
+        print(mqt.fmin, mqt.fmax, mqt.linFTLen, mqt.octaveNr, mqt.linBins)
     
     # computing the desired WF0 matrix
     WF0 = np.zeros([mqt.freqbins,
@@ -476,7 +476,7 @@ def generate_WF0_MinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
     ##odgds = np.array([])
     for fundamentalFrequency in np.arange(numberOfF0):
         if verbose>0:
-            print "    f0 n.", fundamentalFrequency+1, "/", numberOfF0
+            print("    f0 n.", fundamentalFrequency+1, "/", numberOfF0)
         odgd, odgdSpec = \
               generate_ODGD_spec(F0Table[fundamentalFrequency], Fs, \
                                  Ot=Ot, lengthOdgd=lengthWindow, \
@@ -485,7 +485,7 @@ def generate_WF0_MinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
         mqt.computeTransform(data=odgd)
         # getting the cqt transform at the middle of the window:
         midindex = np.argmin((mqt.datalen_init / 2. - mqt.time_stamps)**2)
-        if verbose>1: print midindex, mqt.transfo.shape, WF0.shape
+        if verbose>1: print(midindex, mqt.transfo.shape, WF0.shape)
         WF0[:,fundamentalFrequency * perF0] = np.abs(mqt.transfo[:,midindex])**2
         # del mqt.transfo # maybe needed but might slow down even more...
         ##odgds = np.concatenate([odgds, odgd/(np.abs(odgd).max()*1.2)])
@@ -600,14 +600,14 @@ def generate_WF0_NSGTMinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
                              '.npz'])
     
     if os.path.isfile(filename) and loadWF0:
-        print "Reading WF0 and F0Table from stored arrays in %s." %filename
+        print("Reading WF0 and F0Table from stored arrays in %s." %filename)
         struc = np.load(filename)
         return struc['F0Table'], struc['WF0'], struc['mqt'].tolist()
     else:
-        print "No such file: %s." %filename
+        print("No such file: %s." %filename)
         
     
-    print "First time WF0 computed with these parameters, please wait..."
+    print("First time WF0 computed with these parameters, please wait...")
     # converting to double arrays:
     minF0=np.double(minF0)
     maxF0=np.double(maxF0)
@@ -625,7 +625,7 @@ def generate_WF0_NSGTMinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
     #       the desired Nfft:
     # cqtfmax = np.ceil(3. * Fs / (Nfft * (2**(1./cqtbins) - 1)))
     # strange things happening to FFTLen...
-    if verbose>1: print "cqtfmax set to", cqtfmax
+    if verbose>1: print("cqtfmax set to", cqtfmax)
     
     mqt = nsgt.nsgtMinQT(ftlen=Nfft,
                          cqtfmin=cqtfmin,
@@ -635,8 +635,8 @@ def generate_WF0_NSGTMinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
                          datalength=lengthWindow,
                          )
     if verbose>2:
-        print mqt.cqtkernel
-        print mqt.fmin, mqt.fmax, mqt.linFTLen, mqt.octaveNr, mqt.linBins
+        print(mqt.cqtkernel)
+        print(mqt.fmin, mqt.fmax, mqt.linFTLen, mqt.octaveNr, mqt.linBins)
     
     # computing the desired WF0 matrix
     WF0 = np.zeros([mqt.cqtkernel.bins*mqt.octaveNr+
@@ -649,7 +649,7 @@ def generate_WF0_NSGTMinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
     ##odgds = np.array([])
     for fundamentalFrequency in np.arange(numberOfF0):
         if verbose>0:
-            print "    f0 n.", fundamentalFrequency+1, "/", numberOfF0
+            print("    f0 n.", fundamentalFrequency+1, "/", numberOfF0)
         odgd, odgdSpec = \
               generate_ODGD_spec(F0Table[fundamentalFrequency], Fs, \
                                  Ot=Ot, lengthOdgd=lengthWindow, \
@@ -658,7 +658,7 @@ def generate_WF0_NSGTMinQT_chirped(minF0, maxF0, cqtfmax, cqtfmin, cqtbins=48.,
         mqt.computeTransform(data=odgd)
         # getting the cqt transform at the middle of the window:
         midindex = np.argmin((mqt.datalen_init / 2. - mqt.time_stamps)**2)
-        if verbose>1: print midindex, mqt.transfo.shape, WF0.shape
+        if verbose>1: print(midindex, mqt.transfo.shape, WF0.shape)
         WF0[:,fundamentalFrequency * perF0] = np.abs(mqt.transfo[:,midindex])**2
         # del mqt.transfo # maybe needed but might slow down even more...
         ##odgds = np.concatenate([odgds, odgd/(np.abs(odgd).max()*1.2)])
@@ -764,14 +764,14 @@ def generate_WF0_TR_chirped(transform, minF0, maxF0, stepNotes=4,
                                             np.isscalar(v)) else
                    v.__name__ if (k in attributesToKeep and
                                   type(v)==type(lambda x:x)) else
-                   '') for k,v in transform.__dict__.items()]
+                   '') for k,v in list(transform.__dict__.items())]
     significantAttributes = [] # keeping only non-empty attributes
     for att in attributes:
         if att != '':
             significantAttributes.append(att)
     attributes = significantAttributes
     attributes.sort()
-    print attributes #DEBUG
+    print(attributes) #DEBUG
     
     filename = str('').join(['wf0_%s_' %transform.transformname,
                              '_minF0-', str(minF0),
@@ -791,14 +791,14 @@ def generate_WF0_TR_chirped(transform, minF0, maxF0, stepNotes=4,
     # print len(filename), filename #DEBUG
     
     if os.path.isfile(filename) and loadWF0:
-        print "Reading WF0 and F0Table from stored arrays in %s." %filename
+        print("Reading WF0 and F0Table from stored arrays in %s." %filename)
         struc = np.load(filename)
         return struc['F0Table'], struc['WF0'], struc['tft'].tolist()
     else:
-        print "No such file: %s." %filename
+        print("No such file: %s." %filename)
         
     
-    print "First time WF0 computed with these parameters, please wait..."
+    print("First time WF0 computed with these parameters, please wait...")
     # converting to double arrays:
     minF0=np.double(minF0)
     maxF0=np.double(maxF0)
@@ -831,7 +831,7 @@ def generate_WF0_TR_chirped(transform, minF0, maxF0, stepNotes=4,
     ##odgds = np.array([])
     for fundamentalFrequency in np.arange(numberOfF0):
         if verbose>0:
-            print "    f0 n.", fundamentalFrequency+1, "/", numberOfF0
+            print("    f0 n.", fundamentalFrequency+1, "/", numberOfF0)
         odgd, odgdSpec = \
               generate_ODGD_spec(F0Table[fundamentalFrequency], Fs, \
                                  Ot=Ot, lengthOdgd=lengthWindow, \
@@ -841,7 +841,7 @@ def generate_WF0_TR_chirped(transform, minF0, maxF0, stepNotes=4,
         # getting the cqt transform at the middle of the window:
         midindex = np.argmin((transform.datalen_init / 2.
                               - transform.time_stamps)**2)
-        if verbose>1: print midindex, transform.transfo.shape, WF0.shape
+        if verbose>1: print(midindex, transform.transfo.shape, WF0.shape)
         WF0[:,fundamentalFrequency * perF0] = np.abs(
             transform.transfo[:,midindex])**2
         # del mqt.transfo # maybe needed but might slow down even more...
@@ -853,7 +853,7 @@ def generate_WF0_TR_chirped(transform, minF0, maxF0, stepNotes=4,
             plt.figure(111)
             plt.clf()
             plt.imshow(np.log(np.abs(transform.transfo)**2))
-            raw_input('ayayay')
+            input('ayayay')
             
         for chirpNumber in np.arange(perF0 - 1):
             F2 = F0Table[fundamentalFrequency] \
@@ -1124,7 +1124,7 @@ def generateHannBasis(numberFrequencyBins, sizeOfFourier, Fs, \
         
     # checking whether the required scale is recognized
     if not(isScaleRecognized):
-        print "The desired feature for frequencyScale is not recognized yet..."
+        print("The desired feature for frequencyScale is not recognized yet...")
         return 0
     
     # the shape of one window:

@@ -6,8 +6,8 @@ Created on 05.11.2011
 
 import numpy as N
 from math import ceil
-from itertools import izip
-from util import chkM,fftp,ifftp
+
+from .util import chkM,fftp,ifftp
 
 try:
     import theano as T
@@ -27,12 +27,12 @@ def nsgtf_sl(f_slices,g,wins,nn,M=None,real=False,reducedform=0,measurefft=False
     else:
         sl = slice(0,None)
     
-    maxLg = max(int(ceil(float(len(gii))/mii))*mii for mii,gii in izip(M[sl],g[sl]))
+    maxLg = max(int(ceil(float(len(gii))/mii))*mii for mii,gii in zip(M[sl],g[sl]))
     temp0 = None
     
     
     loopparams = []
-    for mii,gii,win_range in izip(M[sl],g[sl],wins[sl]):
+    for mii,gii,win_range in zip(M[sl],g[sl],wins[sl]):
         Lg = len(gii)
         col = int(ceil(float(Lg)/mii))
         assert col*mii >= Lg
@@ -106,9 +106,9 @@ def nsgtf_sl(f_slices,g,wins,nn,M=None,real=False,reducedform=0,measurefft=False
         # The actual transform
         c = loop(temp0)
             
-        yield map(ifft,c)  # TODO: if matrixform, perform "2D" FFT along one axis
+        yield list(map(ifft,c))  # TODO: if matrixform, perform "2D" FFT along one axis
 
         
 # non-sliced version
 def nsgtf(f,g,wins,nn,M=None,real=False,reducedform=0,measurefft=False):
-    return nsgtf_sl((f,),g,wins,nn,M=M,real=real,reducedform=reducedform,measurefft=measurefft).next()
+    return next(nsgtf_sl((f,),g,wins,nn,M=M,real=real,reducedform=reducedform,measurefft=measurefft))

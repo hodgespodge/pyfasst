@@ -33,15 +33,19 @@ Reference
 """
 
 import numpy as np
-import audioObject as ao
-import tftransforms.tft as tft
+from . import audioObject as ao
+
+from pyfasst.tftransforms import tft
+# from . import tftransforms.tft as tft
 tfts = {'stft': tft.STFT,
         'cqt': tft.CQTransfo,
         'mqt': tft.MinQTransfo,
         'minqt': tft.MinQTransfo,
         }
 # to get the PCA for 2D vectors:
-import tools.signalTools as st
+
+from pyfasst.tools import signalTools as st
+# from . import tools.signalTools as st
 import warnings
 
 eps = 1e-10
@@ -169,25 +173,25 @@ class DEMIX(object):
         self.clusters = []
         nbRemainingPoints = self.subTFpointSet.sum()
         if self.verbose:
-            print "Computing the clusters... ", nbRemainingPoints, "TF points"
+            print("Computing the clusters... ", nbRemainingPoints, "TF points")
         while nbRemainingPoints and len(self.clusters) < self.maxclusters:
             if self.verbose>4: #DEBUG: tends to be a bit cumbersome
-                print "Remaining points:", nbRemainingPoints
+                print("Remaining points:", nbRemainingPoints)
             self.clusterCentroids.append(self.get_max_confidence_point())
             if self.verbose>1:
                 ## attention: no delta in centroid yet...
                 # print "    centroid:", self.clusterCentroids[-1]
-                print "    belongs to previous cluster:",
-                print np.any([ccc[self.clusterCentroids[-1].index_freq,
+                print("    belongs to previous cluster:", end=' ')
+                print(np.any([ccc[self.clusterCentroids[-1].index_freq,
                                 self.clusterCentroids[-1].index_time] for
-                              ccc in self.clusters])
+                              ccc in self.clusters]))
             ind_cluster_theta_pts, distBound = (
                 self.getTFpointsNearTheta_OneScale(self.clusterCentroids[-1])
                 )
             if self.verbose>1:
-                print "comp_clusters:"
-                print "    ind_cluster_theta_pts, theta",
-                print ind_cluster_theta_pts.sum()
+                print("comp_clusters:")
+                print("    ind_cluster_theta_pts, theta", end=' ')
+                print(ind_cluster_theta_pts.sum())
             
             ## already done in above getTFpointsNearTheta method: 
             # ind_cluster_theta_pts *= self.subTFpointSet
@@ -209,15 +213,15 @@ class DEMIX(object):
                                 self.clusterCentroids[-1].index_time] = True
             
             if self.verbose>1:
-                print "comp_clusters:"
-                print "    ind_cluster_theta_pts, delta",
-                print ind_cluster_theta_pts.sum()
-                print "    ***theta***:", self.clusterCentroids[-1].theta
-                print "    ***delta***:", maxDelta
+                print("comp_clusters:")
+                print("    ind_cluster_theta_pts, delta", end=' ')
+                print(ind_cluster_theta_pts.sum())
+                print("    ***theta***:", self.clusterCentroids[-1].theta)
+                print("    ***delta***:", maxDelta)
             self.clusters.append(ind_cluster_theta_pts)
             if self.verbose>1:
-                print "comp_clusters:"
-                print "    self.clusters[-1]", self.clusters[-1].sum()
+                print("comp_clusters:")
+                print("    self.clusters[-1]", self.clusters[-1].sum())
             
             # removing the points that were just classified:
             self.subTFpointSet *= (-ind_cluster_theta_pts)
@@ -464,7 +468,7 @@ class DEMIX(object):
         # coeff influence:
         start = self.neighbors / 2
         energy = np.mean(
-            np.array(self.sig_repr.values()) ** 2,
+            np.array(list(self.sig_repr.values())) ** 2,
             axis=0)[:,start:start+self.confidence.shape[1]]
         self.confidence[energy<energy.max()*1e-6] = 0.
         # no need for the signal representation anymore, for now:
@@ -499,7 +503,7 @@ class DEMIX(object):
         thetaVarAll = np.ones_like(confidence)
         indNotZeroConf = np.where(confidence>eps)
         if self.verbose>1 and False:
-            print "estim_var_theta: indNotZeroConf", indNotZeroConf
+            print("estim_var_theta: indNotZeroConf", indNotZeroConf)
         # The confusing equations are because the values are stored as dBs...
         thetaVarAll[indNotZeroConf[0], indNotZeroConf[1]] = (
             10 ** (confidence[indNotZeroConf[0], indNotZeroConf[1]] / 20.) /
@@ -520,7 +524,7 @@ class DEMIX(object):
         confidence = np.maximum(confidence, minConfidence)
         confidence = np.atleast_2d(confidence)
         if self.verbose>1 and False:
-            print "confidence", confidence
+            print("confidence", confidence)
         # the method below returns a 2D array, and therefore,
         # we only return the (only) element of it:
         if np.size(confidence)>1:
@@ -541,8 +545,8 @@ class DEMIX(object):
             thetaVarAll = self.thetaVarAll
             
         if self.verbose>1 and False: # DEBUG, lots of stuff written!
-            print "daobound", (np.sqrt(thetaVarAll) +
-                               np.sqrt(maxErrorTheta)) * uDistBound
+            print("daobound", (np.sqrt(thetaVarAll) +
+                               np.sqrt(maxErrorTheta)) * uDistBound)
         return (np.sqrt(thetaVarAll) +
                 np.sqrt(maxErrorTheta)) * uDistBound
     
@@ -576,45 +580,45 @@ class DEMIX(object):
         ind_good_cluster = - np.isnan(
             [c.delta for c in self.clusterCentroids])
         if self.verbose>1: #DEBUG
-            print "reestimate_clusterCentroids"
-            print "    ind_good_cluster", ind_good_cluster.sum()
-            print "    [c.delta for c in self.clusterCentroids]"
-            print [c.delta for c in self.clusterCentroids]
-            print "   cluster sizes:", [c.sum() for c in self.clusters]
+            print("reestimate_clusterCentroids")
+            print("    ind_good_cluster", ind_good_cluster.sum())
+            print("    [c.delta for c in self.clusterCentroids]")
+            print([c.delta for c in self.clusterCentroids])
+            print("   cluster sizes:", [c.sum() for c in self.clusters])
         if self.verbose:
-            print "reestimate_clusterCentroids"
-            print "    constraining the clusters to the good ones"
+            print("reestimate_clusterCentroids")
+            print("    constraining the clusters to the good ones")
         self.clusterCentroids = (
             [self.clusterCentroids[n] for n in np.where(ind_good_cluster)[0]])
         self.clusters = (
             [self.clusters[n] for n in np.where(ind_good_cluster)[0]])
         
         if self.verbose:
-            print "  reestimate_clusterCentroids: Computing exclusive clusters"
+            print("  reestimate_clusterCentroids: Computing exclusive clusters")
         nbClusters = ind_good_cluster.sum()
         # filtering out the Time-Freq points that are in several clusters:
         self.create_exclusive_clusters()
         
         if self.verbose:
-            print ("  reestimate_clusterCentroids: "+
-                   "Computing thresholded clusters")
+            print(("  reestimate_clusterCentroids: "+
+                   "Computing thresholded clusters"))
         # adaptive thresholding of clusters
         thresholdedClusters = self.adaptive_thresholding_clusters()
         
         if self.verbose:
-            print "  reestimate_clusterCentroids: For each cluster, "
-            print "                               reestimate the centroid"
+            print("  reestimate_clusterCentroids: For each cluster, ")
+            print("                               reestimate the centroid")
         # estimation of centroids for each cluster
         for n, cluster in enumerate(thresholdedClusters):
             if self.verbose>1:
-                print "    cluster", n+1, "of", len(thresholdedClusters)
+                print("    cluster", n+1, "of", len(thresholdedClusters))
             if cluster.sum() != 0:
                 # only the confidences for the current cluster:
                 confidences = self.confidence[cluster]
                 thetas = self.thetaAll[cluster]
                 variances = self.thetaVarAll[cluster]
                 if self.verbose > 1 and False: # DEBUG
-                    print "reestim_cluster: confidence", confidences
+                    print("reestim_cluster: confidence", confidences)
                 varBounds = self.estim_bound_var_theta(confidence=confidences,
                                                        infOrSup='sup',
                                                        u=uVarBound)
@@ -713,20 +717,20 @@ class DEMIX(object):
         distTocluster = np.ones(nbClusters) * 2
         
         if self.verbose:
-            print "adaptive thresholding the clusters"
+            print("adaptive thresholding the clusters")
         
         for n in range(nbClusters):
             if self.verbose>1:
-                print "    cluster", n, "of", nbClusters
+                print("    cluster", n, "of", nbClusters)
                 
-            clustersMinusN = range(nbClusters)
+            clustersMinusN = list(range(nbClusters))
             clustersMinusN.remove(n)
             for m in clustersMinusN:
                 if self.verbose>2 and False: # DEBUG
-                    print "[min(n,m), max(n,m)]", [min(n,m), max(n,m)]
+                    print("[min(n,m), max(n,m)]", [min(n,m), max(n,m)])
                 dist_n_m = np.copy(distanceArray[min(n,m), max(n,m)])
                 if self.verbose>2 and False: # DEBUG
-                    print "dist_n_m", dist_n_m
+                    print("dist_n_m", dist_n_m)
                 # max erreurs sur l'estimation des centroids:
                 dist_centroid_n = self.estimDAOBound(
                     confidence=self.clusterCentroids[n].confidence,
@@ -736,15 +740,15 @@ class DEMIX(object):
                     confidence=self.clusterCentroids[m].confidence,
                     confidenceVal=np.Inf)
                 if self.verbose>2 and False:  # DEBUG
-                    print "  dist_centroid_n/m",dist_centroid_n,dist_centroid_m
+                    print("  dist_centroid_n/m",dist_centroid_n,dist_centroid_m)
                 
                 dist_n_m -= (dist_centroid_n + dist_centroid_m)
                 dist_n_m = max(dist_n_m , 0.)
                 distTocluster[n] = min(dist_n_m, distTocluster[n])
                 if self.verbose>2 and False: # DEBUG
-                    print "distTocluster[n]", distTocluster[n]
+                    print("distTocluster[n]", distTocluster[n])
                     if distTocluster[n]==0:
-                        print "    nul dist for", [min(n,m), max(n,m)]
+                        print("    nul dist for", [min(n,m), max(n,m)])
             # estimation of threshold
             confidenceThreshold[n] = confidenceFromVar((distTocluster[n]/2)**2,
                                                        self.neighbors)
@@ -788,11 +792,11 @@ class DEMIX(object):
         """
         clustersizes = np.array([c.sum() for c in self.clusters])
         if self.verbose>1:
-            print "remove_empty_clusters"
-            print "    cluster sizes:", clustersizes
-            print "    Removing", np.sum(clustersizes==0), "clusters"
+            print("remove_empty_clusters")
+            print("    cluster sizes:", clustersizes)
+            print("    Removing", np.sum(clustersizes==0), "clusters")
         if self.verbose:
-            print "    cluster centroids:", self.clusterCentroids
+            print("    cluster centroids:", self.clusterCentroids)
         self.clusters = (
             [self.clusters[n] for n in np.where(clustersizes>0)[0]])
         self.clusterCentroids = (
@@ -811,12 +815,12 @@ class DEMIX(object):
         nbClusters = len(self.clusters)
         indGoodClusters = []
         for n in range(nbClusters):
-            clustersMinusN = range(nbClusters)
+            clustersMinusN = list(range(nbClusters))
             clustersMinusN.remove(n)
             isGoodCluster = True
             for m in clustersMinusN:
                 if self.verbose>1 and False: # DEBUG
-                    print "[min(n,m), max(n,m)]", [min(n,m), max(n,m)]
+                    print("[min(n,m), max(n,m)]", [min(n,m), max(n,m)])
                 dist_n_m = np.copy(distanceArray[min(n,m), max(n,m)])
                 if (self.clusterCentroids[n].confidence>
                     self.clusterCentroids[m].confidence):
@@ -972,7 +976,7 @@ class TFPoint(object):
             #    estim_bound_var_theta
             self.demixInst = demixinstance
         else:
-            print "TFPoint: generating dummy TFPoint"
+            print("TFPoint: generating dummy TFPoint")
         
         self.verbose = verbose
     
@@ -992,7 +996,7 @@ class TFPoint(object):
             ) * uDistBound
         
         if self.verbose>1 and False:
-            print "dmax", dmax
+            print("dmax", dmax)
         
         cos_ds = (dmax**2 - 2)**2 / 2 - 1 # where does this come from...
         if np.arccos(cos_ds) <= min(2*self.theta, np.pi - 2*self.theta):

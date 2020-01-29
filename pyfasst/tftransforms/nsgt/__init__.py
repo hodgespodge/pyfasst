@@ -26,13 +26,13 @@ All standard disclaimers apply.
 
 """
 
-from cq import NSGT,CQ_NSGT
-from slicq import NSGT_sliced,CQ_NSGT_sliced
-from fscale import Scale,OctScale,LogScale,LinScale,MelScale,MinQScale
+from .cq import NSGT,CQ_NSGT
+from .slicq import NSGT_sliced,CQ_NSGT_sliced
+from .fscale import Scale,OctScale,LogScale,LinScale,MelScale,MinQScale
 from warnings import warn
 
 try:
-    from audio import SndReader,SndWriter
+    from .audio import SndReader,SndWriter
 except ImportError:
     warn("Audio IO routines (scikits.audio module) could not be imported")
 
@@ -52,8 +52,8 @@ class NonStatGaborT(object ):
         """
         # getting the keyword arguments for nsgt
         nsgtkwargs = {}
-        for k,v in kwargs.items():
-            if k in NSGT.__init__.func_code.co_varnames and \
+        for k,v in list(kwargs.items()):
+            if k in NSGT.__init__.__code__.co_varnames and \
                    k not in ('scale', 'fs', 'datalength', 'real', 'matrixform',
                              'reducedform', 'verbose'):
                 nsgtkwargs[k] = v

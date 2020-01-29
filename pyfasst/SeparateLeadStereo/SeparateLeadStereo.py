@@ -31,7 +31,7 @@ import os
 import warnings
 # this
 #from tracking import viterbiTrackingArray
-from .tracking._tracking import viterbiTracking as viterbiTrackingArray
+from .tracking.tracking import viterbiTracking,viterbiTrackingArray
 # the following import gets useful functions for this class:
 from . import separateLeadFunctions as slf
 
@@ -309,12 +309,12 @@ class SeparateLeadProcess():
             self.files['inputAudioFilename'].split('/')[:-1])+\
             '/'+self.files['outputDirSuffix'] +'/'
         if os.path.isdir(self.files['outputDir']):
-            print "Output directory already existing - "+\
-                  "NB: overwriting files in:"
-            print self.files['outputDir']
+            print("Output directory already existing - "+\
+                  "NB: overwriting files in:")
+            print(self.files['outputDir'])
         else:
-            print "Creating output directory"
-            print self.files['outputDir']
+            print("Creating output directory")
+            print(self.files['outputDir'])
             os.mkdir(self.files['outputDir'])
         
         self.files['pathBaseName'] = self.files['outputDir'] + \
@@ -327,17 +327,17 @@ class SeparateLeadProcess():
         self.files['pitch_output_file'] = str(self.files['pathBaseName']+\
                                               '_pitches.txt')
         
-        print "Writing the different following output files:"
-        print "    separated lead          in", \
-              self.files['voc_output_file'] 
-        print "    separated accompaniment in", \
-              self.files['mus_output_file'] 
-        print "    separated lead + unvoc  in", \
-              self.files['voc_output_file'][:-4] + '_VUIMM.wav'
-        print "    separated acc  - unvoc  in", \
-              self.files['mus_output_file'][:-4] + '_VUIMM.wav'
-        print "    estimated pitches       in", \
-              self.files['pitch_output_file'] 
+        print("Writing the different following output files:")
+        print("    separated lead          in", \
+              self.files['voc_output_file']) 
+        print("    separated accompaniment in", \
+              self.files['mus_output_file']) 
+        print("    separated lead + unvoc  in", \
+              self.files['voc_output_file'][:-4] + '_VUIMM.wav')
+        print("    separated acc  - unvoc  in", \
+              self.files['mus_output_file'][:-4] + '_VUIMM.wav')
+        print("    estimated pitches       in", \
+              self.files['pitch_output_file']) 
         
         # read the WAV file and store the STFT
         self.fs, data = wav.read(self.files['inputAudioFilename'])
@@ -348,14 +348,14 @@ class SeparateLeadProcess():
         self.dataType = data.dtype
         data = np.double(data) / self.scaleData # makes data vary from -1 to 1
         if data.shape[0] == data.size: # data is multi-channel
-            print "The audio file is not stereo. Making stereo out of mono."
-            print "(You could also try the older separateLead.py...)"
+            print("The audio file is not stereo. Making stereo out of mono.")
+            print("(You could also try the older separateLead.py...)")
             data = np.vstack([data, data]).T
             self.numberChannels = 1
         if data.shape[1] != 2:
-            print "The data is multichannel, but not stereo... \n"
-            print "Unfortunately this program does not scale well. Data is \n"
-            print "reduced to its 2 first channels.\n"
+            print("The data is multichannel, but not stereo... \n")
+            print("Unfortunately this program does not scale well. Data is \n")
+            print("reduced to its 2 first channels.\n")
             data = data[:,0:2]
             self.numberChannels = data.shape[1]
         
@@ -368,13 +368,13 @@ class SeparateLeadProcess():
         self.SIMMParams['niter'] = nbIter
         self.SIMMParams['R'] = numCompAccomp
         
-        print "Some parameter settings:"
-        print "    Size of analysis windows: ", \
-              self.stftParams['windowSizeInSamples'] 
-        print "    Hopsize: ", self.stftParams['hopsize'] 
-        print "    Size of Fourier transforms: ", self.stftParams['NFT'] 
-        print "    Number of iterations to be done: ",self.SIMMParams['niter']  
-        print "    Number of elements in WM: ", self.SIMMParams['R']
+        print("Some parameter settings:")
+        print("    Size of analysis windows: ", \
+              self.stftParams['windowSizeInSamples']) 
+        print("    Hopsize: ", self.stftParams['hopsize']) 
+        print("    Size of Fourier transforms: ", self.stftParams['NFT']) 
+        print("    Number of iterations to be done: ",self.SIMMParams['niter'])  
+        print("    Number of elements in WM: ", self.SIMMParams['R'])
     
         ##self.XR, F, N = slf.stft(data[:,0], fs=self.fs,
         ##                hopsize=self.stftParams['hopsize'] ,
@@ -501,19 +501,19 @@ class SeparateLeadProcess():
         of the parameters.
         
         """
-        print "Redefining the Output Filenames !"
+        print("Redefining the Output Filenames !")
         
         self.files['outputDirSuffix']  = outputDirSuffix
         self.files['outputDir'] = str('/').join(\
             self.files['inputAudioFilename'].split('/')[:-1])+\
             '/'+self.files['outputDirSuffix'] +'/'
         if os.path.isdir(self.files['outputDir']):
-            print "Output directory already existing - "+\
-                  "NB: overwriting files in:"
-            print self.files['outputDir']
+            print("Output directory already existing - "+\
+                  "NB: overwriting files in:")
+            print(self.files['outputDir'])
         else:
-            print "Creating output directory"
-            print self.files['outputDir']
+            print("Creating output directory")
+            print(self.files['outputDir'])
             os.mkdir(self.files['outputDir'])
         
         self.files['pathBaseName'] = self.files['outputDir'] + \
@@ -526,17 +526,17 @@ class SeparateLeadProcess():
         self.files['pitch_output_file'] = str(self.files['pathBaseName']+\
                                               '_pitches.txt')
         
-        print "Writing the different following output files:"
-        print "    separated lead          in", \
-              self.files['voc_output_file'] 
-        print "    separated accompaniment in", \
-              self.files['mus_output_file'] 
-        print "    separated lead + unvoc  in", \
-              self.files['voc_output_file'][:-4] + '_VUIMM.wav'
-        print "    separated acc  - unvoc  in", \
-              self.files['mus_output_file'][:-4] + '_VUIMM.wav'
-        print "    estimated pitches       in", \
-              self.files['pitch_output_file']
+        print("Writing the different following output files:")
+        print("    separated lead          in", \
+              self.files['voc_output_file']) 
+        print("    separated accompaniment in", \
+              self.files['mus_output_file']) 
+        print("    separated lead + unvoc  in", \
+              self.files['voc_output_file'][:-4] + '_VUIMM.wav')
+        print("    separated acc  - unvoc  in", \
+              self.files['mus_output_file'][:-4] + '_VUIMM.wav')
+        print("    estimated pitches       in", \
+              self.files['pitch_output_file'])
     
     def computeMonoX(self, start=0, stop=None):
         """Computes and return SX, the mono channel or mean over the
@@ -640,8 +640,8 @@ class SeparateLeadProcess():
         ## section to estimate the melody, on monophonic algo:
         SX = self.computeMonoX()
         # First round of parameter estimation:
-        print "    Estimating IMM parameters, on mean of channels, with",R,\
-              "\n    accompaniment components."
+        print("    Estimating IMM parameters, on mean of channels, with",R,\
+              "\n    accompaniment components.")
         HGAMMA, HPHI, HF0, HM, WM, recoError1 = SIMM.SIMM(
             # the data to be fitted to:
             SX,
@@ -686,16 +686,16 @@ class SeparateLeadProcess():
         totFrames = np.int32(self.computeNFrames())
         nChunks = totFrames/maxFrames + 1
         # First round of parameter estimation:
-        print "    Estimating IMM parameters, on mean of channels, with",R,\
+        print("    Estimating IMM parameters, on mean of channels, with",R,\
               "\n    accompaniment components."+\
-              "    Nb of chunks: %d." %nChunks
+              "    Nb of chunks: %d." %nChunks)
         # del SX
         self.SIMMParams['HF0'] = np.zeros([self.SIMMParams['NF0'] * \
                                            self.SIMMParams['chirpPerF0'],
                                            totFrames])
         for n in range(nChunks):
             if self.verbose:
-                print "Chunk nb", n+1, "out of", nChunks
+                print("Chunk nb", n+1, "out of", nChunks)
             start = n*maxFrames
             stop = np.minimum((n+1)*maxFrames, totFrames)
             SX = self.computeMonoX(start=start, stop=stop)
@@ -742,7 +742,7 @@ class SeparateLeadProcess():
             imgYticklabels = imgYticks
         else:
             imgYticklabels = np.int32(F0Table[imgYticks]).tolist()
-            for k, v in notesFreqs.items():
+            for k, v in list(notesFreqs.items()):
                 closestIndex = np.argmin(np.abs(F0Table-v))
                 if np.abs(12*np.log2(F0Table[closestIndex])-\
                           12*np.log2(v)) < .25:
@@ -767,7 +767,7 @@ class SeparateLeadProcess():
         """Compute the chroma matrix.
         """
         if hasattr(self, 'SIMMParams'):
-            if 'HF0' not in self.SIMMParams.keys():
+            if 'HF0' not in list(self.SIMMParams.keys()):
                 self.estimHF0(maxFrames=maxFrames)
         else:
             raise AttributeError("The parameters for the SIMM are not"+\
@@ -800,7 +800,7 @@ class SeparateLeadProcess():
         patterns['majorPattern']      = np.array([0,2,4,5,7,9,11])
         patterns['andalusPattern']    = np.array([0,1,4,5,7,8,11])
         
-        nbPattern = len(patterns.keys())
+        nbPattern = len(list(patterns.keys()))
         nbTunings = self.SIMMParams['stepNotes']
         nbKey = 12
         scoresPerTuning = np.zeros([nbPattern, nbTunings*nbKey])
@@ -817,7 +817,7 @@ class SeparateLeadProcess():
         bestKey = bestTuning / nbTunings
         bestTuning = bestTuning - bestKey * nbTunings 
         return scoresPerTuning, bestTuning, \
-               bestKey, patterns.keys()[bestPattern]
+               bestKey, list(patterns.keys())[bestPattern]
     
     def automaticMelodyAndSeparation(self):
         """Fully automated estimation of melody and separation of signals.
@@ -838,7 +838,7 @@ class SeparateLeadProcess():
         self.estimStereoSIMMParamsWriteSeps(maxFrames=maxFrames)
     
     def runViterbi(self):
-        if not('HF0' in self.SIMMParams.keys()):
+        if not('HF0' in list(self.SIMMParams.keys())):
             raise AttributeError("HF0 has probably not been estimated yet.")
         ##SX = self.computeMonoX() # useless here?
         self.computeNFrames() # just to be sure self.N is total nb of frames
@@ -863,7 +863,7 @@ class SeparateLeadProcess():
             nmaxF0 = np.where(self.SIMMParams['F0Table']>=maxF0search)[0][0]+1
             
         NF0 = nmaxF0 - nminF0
-        print nminF0, nmaxF0 #DEBUG
+        print(nminF0, nmaxF0) #DEBUG
         
         # filling the transitions probabilities
         transitions = np.exp(-np.floor(np.arange(0, NF0)/\
@@ -901,13 +901,13 @@ class SeparateLeadProcess():
         # free all what s not needed anymore:
         del normHF0, transitions, b
         
-        print "Running Viterbi algorithm to track the melody, " + \
-              str(self.N) + " frames."
+        print("Running Viterbi algorithm to track the melody, " + \
+              str(self.N) + " frames.")
         indexBestPath = viterbiTrackingArray(NF0, self.N,\
             logHF0, np.log(priorProbabilities),
             np.log(transitionMatrixF0), verbose=False)
         indexBestPath += nminF0
-        print "Viterbi algorithm done..."
+        print("Viterbi algorithm done...")
         
         # drawing this as a line is actually a bit confusing, on the image
         #     TODO: think of a better representation (is contour good enough?)
@@ -985,8 +985,8 @@ class SeparateLeadProcess():
             indexBestPath[melNotPresent] = 0
         else:
             if self.verbose:
-                print "    Not using energy threshold, since "+\
-                      "parameters were deleted."
+                print("    Not using energy threshold, since "+\
+                      "parameters were deleted.")
         
         freqMelody = self.SIMMParams['F0Table'][np.array(indexBestPath,
                                                          dtype=int)]
@@ -1059,15 +1059,15 @@ class SeparateLeadProcess():
         # del SX
         
         # First round of parameter estimation:
-        print "    Estimating IMM parameters, on stereo channels, with",\
+        print("    Estimating IMM parameters, on stereo channels, with",\
               self.SIMMParams['R'],\
               "\n    accompaniment components."+\
-              "    Nb of chunks: %d." %nChunks
+              "    Nb of chunks: %d." %nChunks)
         
         self.SIMMParams['HGAMMA'] = None
         for n in range(nChunks):
             if self.verbose:
-                print "Chunk nb", n+1, "out of", nChunks
+                print("Chunk nb", n+1, "out of", nChunks)
             start = n*maxFrames
             stop = np.minimum((n+1)*maxFrames, totFrames)
             SXR, SXL = self.computeStereoSX(start=start, stop=stop)
@@ -1144,17 +1144,17 @@ class SeparateLeadProcess():
         """
         totFrames = np.int32(self.computeNFrames())
         nChunks = totFrames/maxFrames + 1
-        print "    Estimating IMM parameters, on stereo channels, with",\
+        print("    Estimating IMM parameters, on stereo channels, with",\
               self.SIMMParams['R'],\
               "\n    accompaniment components."+\
-              "    Nb of chunks: %d." %nChunks
+              "    Nb of chunks: %d." %nChunks)
         
         WUF0 = np.hstack([self.SIMMParams['WF0'],
                           np.ones([self.SIMMParams['WF0'].shape[0], 1])])
         self.SIMMParams['WUF0'] = WUF0
         for n in range(nChunks):
             if self.verbose:
-                print "Chunk nb", n+1, "out of", nChunks
+                print("Chunk nb", n+1, "out of", nChunks)
             start = n*maxFrames
             stop = np.minimum((n+1)*maxFrames, totFrames)
             SXR, SXL = self.computeStereoSX(start=start, stop=stop)

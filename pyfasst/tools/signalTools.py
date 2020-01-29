@@ -181,13 +181,13 @@ def inv_herm_mat_2d(sigma_x_diag, sigma_x_off, verbose=False):
     #    raise ValueError("Something weird happened to sigma_x")
     det_sigma_x = np.prod(sigma_x_diag, axis=0) - np.abs(sigma_x_off)**2
     if verbose:
-        print "number of 0s in det ",(det_sigma_x==0.).sum()
+        print("number of 0s in det ",(det_sigma_x==0.).sum())
     # issue when det sigma x is 0... 
     det_sigma_x = (
         np.sign(det_sigma_x + eps) *
         np.maximum(np.abs(det_sigma_x), eps))
     if verbose:
-        print "number of 0s left in det", (det_sigma_x==0.).sum()
+        print("number of 0s left in det", (det_sigma_x==0.).sum())
     inv_sigma_x_diag = np.zeros_like(sigma_x_diag)
     inv_sigma_x_off = - sigma_x_off / det_sigma_x
     inv_sigma_x_diag[0] = sigma_x_diag[1] / det_sigma_x
@@ -274,7 +274,7 @@ def f0detectionFunction(TFmatrix, freqs=None, axis=None,
                 12 * np.log2(freqs / (nh * f0))))
                                  < threshold)
             if debug:
-                print indexToSum.sum()
+                print(indexToSum.sum())
             if indexToSum.sum() > 1:
                 if not len(subTFMat):
                     subTFMat = (
@@ -282,10 +282,10 @@ def f0detectionFunction(TFmatrix, freqs=None, axis=None,
                         * TFmatrix[indexToSum]).max(axis=0)
                 else:
                     if debug:
-                        print subTFMat.shape
-                        print weightFreqs[indexToSum]
-                        print (np.vstack(weightFreqs[indexToSum])
-                               * TFmatrix[indexToSum]).max(axis=0)
+                        print(subTFMat.shape)
+                        print(weightFreqs[indexToSum])
+                        print((np.vstack(weightFreqs[indexToSum])
+                               * TFmatrix[indexToSum]).max(axis=0))
                     subTFMat = np.vstack(
                         [subTFMat,
                          (np.vstack(weightFreqs[indexToSum])
@@ -296,14 +296,14 @@ def f0detectionFunction(TFmatrix, freqs=None, axis=None,
                                 * TFmatrix[indexToSum])
                 else:
                     if debug:
-                        print subTFMat.shape
-                        print (weightFreqs[indexToSum]
-                               * TFmatrix[indexToSum]).shape
+                        print(subTFMat.shape)
+                        print((weightFreqs[indexToSum]
+                               * TFmatrix[indexToSum]).shape)
                     subTFMat = np.vstack(
                         [subTFMat,
                          weightFreqs[indexToSum] * TFmatrix[indexToSum]])
             else:
-                print "No freq bins for f0:", f0, "harmo", nh
+                print("No freq bins for f0:", f0, "harmo", nh)
                 
         if len(subTFMat):
             if subTFMat.ndim == 2:
@@ -313,7 +313,7 @@ def f0detectionFunction(TFmatrix, freqs=None, axis=None,
                                      axis=0)
                 
         else:
-            print "No input for f0:", f0
+            print("No input for f0:", f0)
     
     return hs, F0Table
 
